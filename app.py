@@ -3,6 +3,16 @@ import googleapiclient.discovery
 import streamlit.components.v1 as components
 import utils
 
+class YoutubeVideo:
+    youtube_list = list()
+    def __init__(self,name,url,desc):
+        self.name=name
+        self.url=url
+        self.desc=desc
+        self.watch=None
+        self.segment=None
+        self.youtube_list.append(self)
+        
 YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
 
 # API client library
@@ -40,17 +50,29 @@ def get_text():
     return input_text
 
 def search_youtubes(query):
+    VIDEO_COUNT=50 # 유튜브에서 들고 올 영상 수
+    PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
+    
     request = youtube.search().list(
         part="id,snippet",
         type='video',
         q= query,
         videoDefinition='high',
-        maxResults=10,
+        maxResults=VIDEO_COUNT,
         fields="items(id(videoId),snippet(publishedAt,channelId,channelTitle,title,description))"
     )
 
     response = request.execute()
-
+    
+    # 유튜브 리스트 객체 생성
+    for index, item in enumerate(response['items']):
+        name = item['snippet']['title']
+        url = PREFIX_YOUTUBE_URL + item['id']['videoId']
+        desc = utils.truncate_text ( item['snippet']['description'] )
+        video_init= YoutubeVideo(name=name,url=url,desc=desc)
+    
+    #test
+    # print(YoutubeVideo.youtube_list[0].url)
     return response
 
 # extract_concepts
@@ -72,8 +94,9 @@ def extract_concepts(vid):
 user_input = get_text()
 
 if user_input:
-    new_videos = search_youtubes(user_input)
-        
+    new_videos = search_youtubes(user_input) # 검색한 영상 받아온 리스트 
+
+# 페이지 1, 2, 3 
 tab1, tab2, tab3 = st.tabs(["New Learning", "Uncomprehended", "Completed"])
 
 PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
@@ -83,14 +106,15 @@ with tab1:
 
     NUM_OF_VIDOES_PER_EACH_ROW = 2
     
-    for r in range(3):
+    # New Learning에 표시할 영상
+    for r in range(5): # 몇줄 출력할지
         cols = st.columns(NUM_OF_VIDOES_PER_EACH_ROW)
         for idx, item in enumerate(new_videos['items'][r*NUM_OF_VIDOES_PER_EACH_ROW:r*NUM_OF_VIDOES_PER_EACH_ROW+NUM_OF_VIDOES_PER_EACH_ROW]):
             vidId = item['id']['videoId']
             title = item['snippet']['title']
             desc = utils.truncate_text ( item['snippet']['description'] )
             with cols[idx]:
-                st.video(PREFIX_YOUTUBE_URL + vidId)
+                st.video(PREFIX_YOUTUBE_URL + vidId) # 영상 띄우기
 
                 extract_concepts(vidId)
 
