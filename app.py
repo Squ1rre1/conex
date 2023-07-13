@@ -12,6 +12,10 @@ class YoutubeVideo:
         self.watch=None
         self.segment=None
         self.youtube_list.append(self)
+    
+    @classmethod
+    def list_reset(cls):
+        cls.youtube_list.clear()
         
 YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
 
@@ -50,8 +54,9 @@ def get_text():
     return input_text
 
 def search_youtubes(query):
-    VIDEO_COUNT=50 # 유튜브에서 들고 올 영상 수
+    VIDEO_COUNT=10 # 유튜브에서 들고 올 영상 수
     PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
+    YoutubeVideo.list_reset()
     
     request = youtube.search().list(
         part="id,snippet",
@@ -65,15 +70,16 @@ def search_youtubes(query):
     response = request.execute()
     
     # 유튜브 리스트 객체 생성
-    for index, item in enumerate(response['items']):
+    for item in response['items']:
         name = item['snippet']['title']
         url = PREFIX_YOUTUBE_URL + item['id']['videoId']
         desc = utils.truncate_text ( item['snippet']['description'] )
-        video_init= YoutubeVideo(name=name,url=url,desc=desc)
+        video_init = YoutubeVideo(name=name,url=url,desc=desc)
     
     #test
-    # print(YoutubeVideo.youtube_list[0].url)
-    return response
+    #print(YoutubeVideo.youtube_list[0].url)
+    return response, YoutubeVideo.youtube_list
+
 
 # extract_concepts
 def extract_concepts(vid):
@@ -94,7 +100,7 @@ def extract_concepts(vid):
 user_input = get_text()
 
 if user_input:
-    new_videos = search_youtubes(user_input) # 검색한 영상 받아온 리스트 
+    new_videos, video_list = search_youtubes(user_input) # 검색한 영상 받아온 리스트
 
 # 페이지 1, 2, 3 
 tab1, tab2, tab3 = st.tabs(["New Learning", "Uncomprehended", "Completed"])
