@@ -3,6 +3,7 @@ import googleapiclient.discovery
 import streamlit.components.v1 as components
 import utils
 
+# 유튜브 검색시 유튜브 리스트 저장
 class YoutubeVideo:
     youtube_list = list()
     def __init__(self,name,url,desc):
@@ -16,7 +17,7 @@ class YoutubeVideo:
     @classmethod
     def list_reset(cls):
         cls.youtube_list.clear()
-        
+
 YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
 
 # API client library
@@ -107,6 +108,7 @@ tab1, tab2, tab3 = st.tabs(["New Learning", "Uncomprehended", "Completed"])
 
 PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
 
+#검색된 영상들
 with tab1:
     st.header("New Learning Videos")
 
@@ -126,7 +128,29 @@ with tab1:
 
                 st.write(f"**{title}**")
                 st.write(desc)
-                
+
+#이해 못한 영상과 개념
+with tab2:
+    st.header("Uncomprehended Videos")
+
+    for video in YoutubeVideo.youtube_list: #현재는 유튜브 리스트지만 추후 시청한 영상 리스트로 변경
+        if video.segment is not None:
+            video_column, info_column = st.columns([2, 3])
+            
+            with video_column:
+                st.video(video.url)  # Display the video
+            
+            with info_column:
+                st.write(f"**{video.name}**")
+                st.write(f"Segment: {video.segment}")
+
+#이해한 개념
+with tab3:
+    st.header("Completed Videos")
+
+    for video in YoutubeVideo.youtube_list: #현재는 유튜브 리스트지만 추후 시청한 영상 리스트로 변경
+        if video.segment is not None:
+            st.subheader(video.segment)
 
 with open('style.css', 'rt', encoding='UTF8') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True )
