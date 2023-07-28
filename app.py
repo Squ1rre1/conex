@@ -173,7 +173,7 @@ def duration_to_minutes(duration_str):
     return total_minutes
 
 def search_youtubes(query):
-    VIDEO_COUNT=5 # 유튜브에서 들고 올 영상 수
+    VIDEO_COUNT=3 # 유튜브에서 들고 올 영상 수
     PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
     YoutubeVideo.list_reset()
     
@@ -208,22 +208,64 @@ def search_youtubes(query):
     
     return YoutubeVideo.youtube_list
 
+js_code = """
+<script>
+function toggleUnderstand(seg_no, index) {
+    var key = seg_no + '_' + index;
+    var button = document.getElementById(key);
+    if (button.style.backgroundColor === 'green') {
+        button.style.backgroundColor = 'white';
+        button.style.color = 'black';
+        understand = 0;
+    } else {
+        button.style.backgroundColor = 'green';
+        button.style.color = 'white';
+        understand = 1;
+    }
+    // Send the segment number and index back to Streamlit
+    Streamlit.setComponentValue(key, understand);
+}
+</script>
+"""
 
-# extract_concepts
-def extract_concepts(vid):
-    segment_text = ""
+st.components.v1.html(js_code)
 
-    concepts = st.markdown(f"""
-                    <div class="overlay-layer">
-                        <div class="box">
-                            <a href="LINK_URL"><div class="circle" id="circle1"></div></a>
-                            <a href="LINK_URL"><div class="circle" id="circle2"></div></a>
-                            <a href="LINK_URL"><div class="circle" id="circle3"></div></a>
-                            <a href="LINK_URL"><div class="circle" id="circle4"></div></a>
-                            <a href="LINK_URL"><div class="circle" id="circle5"></div></a>
-                        </div>
-                    </div>""", unsafe_allow_html=True )
-    return concepts
+# Add the custom JavaScript to the app
+st.markdown(js_code, unsafe_allow_html=True)
+
+# 개념 동그라미를 그리는 함수
+def extract_concepts(selected_video):
+    if selected_video.segment is not None:
+        # Loop through each segment and display concepts in circular and rectangular buttons
+        for seg_no, segment_data in selected_video.segment.groupby('seg_no'):
+            st.markdown(f"<h4>Segment {seg_no}</h4>", unsafe_allow_html=True)
+
+            # Display concepts with buttons
+            for index, row in segment_data.iterrows():
+                title = row['title']
+                url = row['url']
+                page_rank = row['pageRank']
+                understand = row['understand']
+
+                # Button style based on understand column
+                if understand == 0:
+                    button_style = "color: black; background-color: white;"
+                else:
+                    button_style = "color: white; background-color: green;"
+
+                # Button click event
+                if st.button(title, key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
+                    # Toggle 'understand' value when the button is clicked
+                    understand = selected_video.segment.at[index, 'understand']
+                    selected_video.segment.at[index, 'understand'] = 1 if understand == 0 else 0
+
+
+                # if st.markdown(f'<button style="{button_style}" onclick="toggleUnderstand({seg_no}, {index})">{title}</button>', unsafe_allow_html=True):
+                #     # Toggle 'understand' value when the button is clicked
+                #     understand = selected_video.segment.at[index, 'understand']
+                #     selected_video.segment.at[index, 'understand'] = 1 if understand == 0 else 0
+    else:
+        st.write("No segment information available for the selected video.")
 
 user_input = get_text()
 
@@ -259,11 +301,10 @@ with tab1:
             with cols[idx]:
                 if st.button(f"Watch: {item.name}"):  
                     selected_video = item  # 클릭한 영상 정보 저장
-                    item.watch=True
                     watchedVideo.append(item) # 클릭 영상 리스트에 저장
                 
                 st.video(item.url) # 영상 표시
-                extract_concepts(item.url)
+                #extract_concepts(item.url)
 
                 st.write(f"**{item.name}**")
                 st.write(item.desc)
@@ -291,9 +332,6 @@ with tab3:
         if video.segment is not None:
             st.subheader(video.segment)
 
-with open('style.css', 'rt', encoding='UTF8') as f:
-    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True )
-
 #클릭한 영상을 크게 보여주는 탭
 with tab4:
     st.header("Watch Video")
@@ -301,5 +339,10 @@ with tab4:
     if selected_video:
         st.subheader(selected_video.name)
         st.video(selected_video.url)
+        if selected_video.segment is not None:
+            extract_concepts(selected_video)
     else:
         st.write("Click on a video in 'New Learning Videos' tab to watch it here.")
+
+with open('style.css', 'rt', encoding='UTF8') as f:
+    st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True )
