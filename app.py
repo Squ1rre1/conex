@@ -9,9 +9,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import json
 import queue
 import re
-
-# 본 영상을 저장하는 리스트
-watchedVideo=list()
+import pickle
 
 # 유튜브 검색시 유튜브 리스트 저장
 class YoutubeVideo:
@@ -28,6 +26,11 @@ class YoutubeVideo:
     @classmethod
     def list_reset(cls):
         cls.youtube_list.clear()
+
+# 본 영상을 저장하는 리스트, 저장 이슈로 인해 파일입출력
+# watchedVideo=list()
+with open("watchedVideo.pkl", "rb") as file:
+    watchedVideo = pickle.load(file)
 
 class Script_Exctractor:
     def __init__(self,vid):
@@ -117,12 +120,14 @@ class Script_Exctractor:
         seg_no = 1
 
         for seg_item in results:
-            seg_index = range(0,len(seg_item))
-            seg_df = pd.DataFrame(seg_item,index = seg_index)
+            # seg_index = range(0,len(seg_item))
+            # seg_df = pd.DataFrame(seg_item,index = seg_index)
+            seg_df = pd.DataFrame(seg_item)
             seg_df['seg_no'] = seg_no
             seg_df['understand']=0
             wiki_data = pd.concat([wiki_data,seg_df])
             seg_no = seg_no + 1
+        wiki_data.index = range(len(wiki_data))
         return wiki_data
 
 YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
@@ -208,6 +213,7 @@ def search_youtubes(query):
     
     return YoutubeVideo.youtube_list
 
+# 일단 js 보류 작동하는지 확인안함
 js_code = """
 <script>
 function toggleUnderstand(seg_no, index) {
@@ -256,9 +262,18 @@ def extract_concepts(selected_video):
                 # Button click event
                 if st.button(title, key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
                     # Toggle 'understand' value when the button is clicked
-                    understand = selected_video.segment.at[index, 'understand']
-                    selected_video.segment.at[index, 'understand'] = 1 if understand == 0 else 0
+                    understand = selected_video.segment.iloc[index, selected_video.segment.columns.get_loc('understand')]
 
+                    if understand == 0:
+                        selected_video.segment.at[index, 'understand'] = 1
+                    else:
+                        selected_video.segment.at[index, 'understand'] = 0
+                    
+                    for idx,video in enumerate(watchedVideo):
+                        if(video.name==selected_video.name):
+                            watchedVideo[idx]=selected_video
+                            with open("watchedVideo.pkl", "wb") as file:
+                                pickle.dump(watchedVideo, file)
 
                 # if st.markdown(f'<button style="{button_style}" onclick="toggleUnderstand({seg_no}, {index})">{title}</button>', unsafe_allow_html=True):
                 #     # Toggle 'understand' value when the button is clicked
@@ -286,7 +301,10 @@ if user_input:
 # 페이지 1, 2, 3 
 tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "Uncomprehended", "Completed", "Watch Video"])
 
-selected_video = None
+# 선택된 영상 저장, 저장 이슈로 파일 입출력
+# selected_video = None
+with open("selected_video.pkl", "rb") as file:
+    selected_video = pickle.load(file)
 
 #검색된 영상들
 with tab1:
@@ -301,13 +319,24 @@ with tab1:
             with cols[idx]:
                 if st.button(f"Watch: {item.name}"):  
                     selected_video = item  # 클릭한 영상 정보 저장
-                    watchedVideo.append(item) # 클릭 영상 리스트에 저장
+                    with open("selected_video.pkl", "wb") as file:
+                        pickle.dump(selected_video, file)
+                    count=0
+                    for video in watchedVideo:
+                        if(video.name==item.name):
+                            count=1
+                    if(count==0):
+                        watchedVideo.append(item) # 클릭 영상 리스트에 저장
+                        with open("watchedVideo.pkl", "wb") as file:
+                            pickle.dump(watchedVideo, file)
                 
                 st.video(item.url) # 영상 표시
                 #extract_concepts(item.url)
 
                 st.write(f"**{item.name}**")
                 st.write(item.desc)
+
+
 
 #이해 못한 영상과 개념
 with tab2:
@@ -322,7 +351,8 @@ with tab2:
             
             with info_column:
                 st.write(f"**{video.name}**")
-                st.write(f"Segment: {video.segment}")
+                st.write(f"Segment: \n")
+                st.dataframe(video.segment)
 
 #이해한 개념
 with tab3:
@@ -330,7 +360,7 @@ with tab3:
 
     for video in watchedVideo: #현재는 유튜브 리스트지만 추후 시청한 영상 리스트로 변경
         if video.segment is not None:
-            st.subheader(video.segment)
+            st.dataframe(video.segment)
 
 #클릭한 영상을 크게 보여주는 탭
 with tab4:
