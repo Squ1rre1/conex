@@ -213,31 +213,31 @@ def search_youtubes(query):
     
     return YoutubeVideo.youtube_list
 
-# 일단 js 보류 작동하는지 확인안함
-js_code = """
-<script>
-function toggleUnderstand(seg_no, index) {
-    var key = seg_no + '_' + index;
-    var button = document.getElementById(key);
-    if (button.style.backgroundColor === 'green') {
-        button.style.backgroundColor = 'white';
-        button.style.color = 'black';
-        understand = 0;
-    } else {
-        button.style.backgroundColor = 'green';
-        button.style.color = 'white';
-        understand = 1;
-    }
-    // Send the segment number and index back to Streamlit
-    Streamlit.setComponentValue(key, understand);
-}
-</script>
-"""
+# # 일단 js 보류 작동하는지 확인안함
+# js_code = """
+# <script>
+# function toggleUnderstand(seg_no, index) {
+#     var key = seg_no + '_' + index;
+#     var button = document.getElementById(key);
+#     if (button.style.backgroundColor === 'green') {
+#         button.style.backgroundColor = 'white';
+#         button.style.color = 'black';
+#         understand = 0;
+#     } else {
+#         button.style.backgroundColor = 'green';
+#         button.style.color = 'white';
+#         understand = 1;
+#     }
+#     // Send the segment number and index back to Streamlit
+#     Streamlit.setComponentValue(key, understand);
+# }
+# </script>
+# """
 
-st.components.v1.html(js_code)
+# st.components.v1.html(js_code)
 
-# Add the custom JavaScript to the app
-st.markdown(js_code, unsafe_allow_html=True)
+# # Add the custom JavaScript to the app
+# st.markdown(js_code, unsafe_allow_html=True)
 
 # 개념 동그라미를 그리는 함수
 def extract_concepts(selected_video):
@@ -253,11 +253,11 @@ def extract_concepts(selected_video):
                 page_rank = row['pageRank']
                 understand = row['understand']
 
-                # Button style based on understand column
-                if understand == 0:
-                    button_style = "color: black; background-color: white;"
-                else:
-                    button_style = "color: white; background-color: green;"
+                # # Button style based on understand column
+                # if understand == 0:
+                #     button_style = "color: black; background-color: white;"
+                # else:
+                #     button_style = "color: white; background-color: green;"
 
                 # Button click event
                 if st.button(title, key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
@@ -277,11 +277,6 @@ def extract_concepts(selected_video):
                             with open("selected_video.pkl", "wb") as file:
                                 pickle.dump(selected_video, file)
                                 print(selected_video.segment)
-
-                # if st.markdown(f'<button style="{button_style}" onclick="toggleUnderstand({seg_no}, {index})">{title}</button>', unsafe_allow_html=True):
-                #     # Toggle 'understand' value when the button is clicked
-                #     understand = selected_video.segment.at[index, 'understand']
-                #     selected_video.segment.at[index, 'understand'] = 1 if understand == 0 else 0
     else:
         st.write("No segment information available for the selected video.")
 
