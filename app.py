@@ -262,7 +262,7 @@ def extract_concepts(selected_video):
                 # Button click event
                 if st.button(title, key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
                     # Toggle 'understand' value when the button is clicked
-                    understand = selected_video.segment.iloc[index, selected_video.segment.columns.get_loc('understand')]
+                    understand = selected_video.segment.at[index, 'understand']
 
                     if understand == 0:
                         selected_video.segment.at[index, 'understand'] = 1
@@ -274,6 +274,9 @@ def extract_concepts(selected_video):
                             watchedVideo[idx]=selected_video
                             with open("watchedVideo.pkl", "wb") as file:
                                 pickle.dump(watchedVideo, file)
+                            with open("selected_video.pkl", "wb") as file:
+                                pickle.dump(selected_video, file)
+                                print(selected_video.segment)
 
                 # if st.markdown(f'<button style="{button_style}" onclick="toggleUnderstand({seg_no}, {index})">{title}</button>', unsafe_allow_html=True):
                 #     # Toggle 'understand' value when the button is clicked
@@ -291,9 +294,9 @@ if user_input:
         try:
             Scripts = Script_Exctractor(video.url)
             video.segment = Scripts.UrltoWiki()
-            print(video.segment)
+            # print(video.segment) # 각 영상당 만들어진 segment 출력
         except Exception as ex:
-            print(ex)
+            # print(ex) # 에러문 출력
             print(f"{index}번째 영상 삭제")
             YoutubeVideo.youtube_list.pop(index)
     print(f"영상 개수: {len(YoutubeVideo.youtube_list)}")
@@ -301,7 +304,7 @@ if user_input:
 # 페이지 1, 2, 3 
 tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "Uncomprehended", "Completed", "Watch Video"])
 
-# 선택된 영상 저장, 저장 이슈로 파일 입출력
+# 선택된 영상 불러오기, 저장 이슈로 파일 입출력
 # selected_video = None
 with open("selected_video.pkl", "rb") as file:
     selected_video = pickle.load(file)
@@ -336,13 +339,27 @@ with tab1:
                 st.write(f"**{item.name}**")
                 st.write(item.desc)
 
+#클릭한 영상을 크게 보여주는 탭 # selected_video 변수가 tab2,3에서 사용돼서 tab4 먼저 적음
+with tab4:
+    st.header("Watch Video")
 
+    if selected_video:
+        st.subheader(selected_video.name)
+        st.video(selected_video.url)
+        if selected_video.segment is not None:
+            extract_concepts(selected_video)
+    else:
+        st.write("Click on a video in 'New Learning Videos' tab to watch it here.")
 
 #이해 못한 영상과 개념
 with tab2:
     st.header("Uncomprehended Videos")
 
-    for video in watchedVideo: #현재는 유튜브 리스트지만 추후 시청한 영상 리스트로 변경
+    for video in watchedVideo: 
+        if st.button(f"Re Watch: {video.name}"):  
+            selected_video = video  # 클릭한 영상 정보 저장
+            with open("selected_video.pkl", "wb") as file:
+                pickle.dump(selected_video, file)
         if video.segment is not None:
             video_column, info_column = st.columns([2, 3])
             
@@ -358,21 +375,9 @@ with tab2:
 with tab3:
     st.header("Completed Videos")
 
-    for video in watchedVideo: #현재는 유튜브 리스트지만 추후 시청한 영상 리스트로 변경
+    for video in watchedVideo: 
         if video.segment is not None:
             st.dataframe(video.segment)
-
-#클릭한 영상을 크게 보여주는 탭
-with tab4:
-    st.header("Watch Video")
-
-    if selected_video:
-        st.subheader(selected_video.name)
-        st.video(selected_video.url)
-        if selected_video.segment is not None:
-            extract_concepts(selected_video)
-    else:
-        st.write("Click on a video in 'New Learning Videos' tab to watch it here.")
 
 with open('style.css', 'rt', encoding='UTF8') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True )
