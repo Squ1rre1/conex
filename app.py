@@ -253,14 +253,14 @@ def extract_concepts(selected_video):
                 page_rank = row['pageRank']
                 understand = row['understand']
 
-                # # Button style based on understand column
-                # if understand == 0:
-                #     button_style = "color: black; background-color: white;"
-                # else:
-                #     button_style = "color: white; background-color: green;"
+                # Button style based on understand column
+                if understand == 0:
+                    button_style = "black"
+                else:
+                    button_style = "red"
 
                 # Button click event
-                if st.button(title, key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
+                if st.button(f":{button_style}[{title}]", key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
                     # Toggle 'understand' value when the button is clicked
                     understand = selected_video.segment.at[index, 'understand']
 
@@ -341,6 +341,8 @@ with tab4:
     if selected_video:
         st.subheader(selected_video.name)
         st.video(selected_video.url)
+        st.write("Red words: understand")
+        st.write("Black words: don't understand yet")
         if selected_video.segment is not None:
             extract_concepts(selected_video)
     else:
