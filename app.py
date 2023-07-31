@@ -132,8 +132,6 @@ class Script_Exctractor:
 
 YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
 
-# API client library
-
 # API information
 api_service_name = "youtube"
 api_version = "v3"
@@ -212,32 +210,6 @@ def search_youtubes(query):
             video_init = YoutubeVideo(name=name,url=url,desc=desc,duration=duration)
     
     return YoutubeVideo.youtube_list
-
-# # 일단 js 보류 작동하는지 확인안함
-# js_code = """
-# <script>
-# function toggleUnderstand(seg_no, index) {
-#     var key = seg_no + '_' + index;
-#     var button = document.getElementById(key);
-#     if (button.style.backgroundColor === 'green') {
-#         button.style.backgroundColor = 'white';
-#         button.style.color = 'black';
-#         understand = 0;
-#     } else {
-#         button.style.backgroundColor = 'green';
-#         button.style.color = 'white';
-#         understand = 1;
-#     }
-#     // Send the segment number and index back to Streamlit
-#     Streamlit.setComponentValue(key, understand);
-# }
-# </script>
-# """
-
-# st.components.v1.html(js_code)
-
-# # Add the custom JavaScript to the app
-# st.markdown(js_code, unsafe_allow_html=True)
 
 # 개념 동그라미를 그리는 함수
 def extract_concepts(selected_video):
