@@ -248,7 +248,6 @@ def extract_concepts(selected_video):
                                 pickle.dump(watchedVideo, file)
                             with open("selected_video.pkl", "wb") as file:
                                 pickle.dump(selected_video, file)
-                                print(selected_video.segment)
     else:
         st.write("No segment information available for the selected video.")
 
