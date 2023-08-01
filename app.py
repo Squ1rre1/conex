@@ -11,6 +11,11 @@ import queue
 import re
 import pickle
 
+# 옵션 기본값
+NUM_OF_VIDEOS = 10
+TIME_DIVISION = 600
+NUM_OF_WORDS = 5
+
 # 유튜브 검색시 유튜브 리스트 저장
 class YoutubeVideo:
     youtube_list = list()
@@ -22,21 +27,22 @@ class YoutubeVideo:
         self.watch=False
         self.segment=None
         self.youtube_list.append(self)
-    
-    @classmethod
-    def list_reset(cls):
-        cls.youtube_list.clear()
 
 # 본 영상을 저장하는 리스트, 저장 이슈로 인해 파일입출력
-# watchedVideo=list()
 with open("watchedVideo.pkl", "rb") as file:
     watchedVideo = pickle.load(file)
 
+with open("new_learning_list.pkl", "rb") as file:
+    new_learning_list = pickle.load(file)
+
+with open("selected_video.pkl", "rb") as file:
+    selected_video = pickle.load(file)
+
 class Script_Exctractor:
-    def __init__(self,vid):
+    def __init__(self,vid,setTime):
         self.vid = vid
         self.scriptData:list = []
-        self.setTime = 600
+        self.setTime = setTime
         self.wikiUserKey = "ecnkjsfhuuvmjfxdvdziepjwznhwdc"
 
     # youtube script 추출
@@ -112,8 +118,8 @@ class Script_Exctractor:
         number = 1
         results = []
         for text in self.scriptData:
-            print(f"{number}st segemnt")
-            results.append(self.CallWikifier(text))
+            print(f"{number} segemnt")
+            results.append(self.CallWikifier(text=text, numberOfKCs=NUM_OF_WORDS))
             number += 1
 
         wiki_data = pd.DataFrame()
@@ -135,6 +141,7 @@ YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
 # API information
 api_service_name = "youtube"
 api_version = "v3"
+
 # API client
 youtube = googleapiclient.discovery.build(
     api_service_name, api_version, developerKey = YOUTUBE_API_KEY)
@@ -155,7 +162,10 @@ with st.sidebar:
                     - provides pre-filtered lectures to identify concepts that are not learned yet
                     - enables learners to catch those concepts in other lectures""")
     st.markdown("---")
-    st.markdown("너가 학습한 개념")
+    st.markdown("Search Option")
+    NUM_OF_VIDEOS = st.number_input("Number of Videos to Extract", value=NUM_OF_VIDEOS)
+    TIME_DIVISION = st.number_input("Time Division (in seconds)", value=TIME_DIVISION)
+    NUM_OF_WORDS = st.number_input("Number of Words to Extract per Time Division", value=NUM_OF_WORDS)
     st.markdown("---")
     st.markdown("@ 2023 Data science labs, Dong-A University, Korea.")
 
@@ -175,10 +185,9 @@ def duration_to_minutes(duration_str):
     total_minutes = hours * 60 + minutes
     return total_minutes
 
-def search_youtubes(query):
-    VIDEO_COUNT=3 # 유튜브에서 들고 올 영상 수
+def search_youtubes(query, video_count):
+    VIDEO_COUNT=video_count # 유튜브에서 들고 올 영상 수
     PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
-    YoutubeVideo.list_reset()
     
     request = youtube.search().list(
         part="id,snippet",
@@ -208,6 +217,8 @@ def search_youtubes(query):
             url = PREFIX_YOUTUBE_URL + item['id']['videoId']
             desc = utils.truncate_text ( item['snippet']['description'] )
             video_init = YoutubeVideo(name=name,url=url,desc=desc,duration=duration)
+        else:
+            print("영상 길이 문제로 필터링됨")
     
     return YoutubeVideo.youtube_list
 
@@ -252,20 +263,23 @@ def extract_concepts(selected_video):
         st.write("No segment information available for the selected video.")
 
 user_input = get_text()
+search_button = st.button("Search")  # 버튼 추가
 
-if user_input:
-    video_list = search_youtubes(user_input) # 검색한 영상 받아온 리스트    # video_list 변수는 사용하진 않지만 가비지 컬렉터가 안돌도록 저장
+if search_button and user_input:
+    new_learning_list = search_youtubes(user_input, NUM_OF_VIDEOS) # 검색한 영상 받아온 리스트
     # 위키화 및 랭크
-    for index, video in enumerate(YoutubeVideo.youtube_list):
+    for index, video in enumerate(new_learning_list):
         try:
-            Scripts = Script_Exctractor(video.url)
+            Scripts = Script_Exctractor(video.url, TIME_DIVISION)
             video.segment = Scripts.UrltoWiki()
             # print(video.segment) # 각 영상당 만들어진 segment 출력
         except Exception as ex:
             # print(ex) # 에러문 출력
             print(f"{index}번째 영상 삭제")
-            YoutubeVideo.youtube_list.pop(index)
-    print(f"영상 개수: {len(YoutubeVideo.youtube_list)}")
+            new_learning_list.pop(index)
+    print(f"영상 개수: {len(new_learning_list)}")
+    with open("new_learning_list.pkl", "wb") as file:
+        pickle.dump(new_learning_list, file)
 
 # 페이지 1, 2, 3 
 tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "Uncomprehended", "Completed", "Watch Video"])
@@ -284,20 +298,25 @@ with tab1:
     # New Learning에 표시할 영상
     for r in range(5): # 몇줄 출력할지
         cols = st.columns(NUM_OF_VIDOES_PER_EACH_ROW)
-        for idx, item in enumerate(YoutubeVideo.youtube_list[r*NUM_OF_VIDOES_PER_EACH_ROW:r*NUM_OF_VIDOES_PER_EACH_ROW+NUM_OF_VIDOES_PER_EACH_ROW]):
+        for idx, item in enumerate(new_learning_list[r*NUM_OF_VIDOES_PER_EACH_ROW:r*NUM_OF_VIDOES_PER_EACH_ROW+NUM_OF_VIDOES_PER_EACH_ROW]):
             with cols[idx]:
                 if st.button(f"Watch: {item.name}"):  
-                    selected_video = item  # 클릭한 영상 정보 저장
-                    with open("selected_video.pkl", "wb") as file:
-                        pickle.dump(selected_video, file)
+                    # 이미 시청한 영상을 클릭하면 시청했던 영상 정보로 불러오기
+                    # 시청안했다면 시청 리스트에 포함 시키기
                     count=0
                     for video in watchedVideo:
                         if(video.name==item.name):
                             count=1
+                            selected_video = video  # 클릭한 영상 정보 저장
+                            with open("selected_video.pkl", "wb") as file:
+                                pickle.dump(selected_video, file)
                     if(count==0):
                         watchedVideo.append(item) # 클릭 영상 리스트에 저장
                         with open("watchedVideo.pkl", "wb") as file:
                             pickle.dump(watchedVideo, file)
+                        selected_video = item  # 클릭한 영상 정보 저장
+                        with open("selected_video.pkl", "wb") as file:
+                            pickle.dump(selected_video, file)
                 
                 st.video(item.url) # 영상 표시
                 #extract_concepts(item.url)
