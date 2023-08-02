@@ -168,9 +168,9 @@ with st.sidebar:
                     - enables learners to catch those concepts in other lectures""")
     st.markdown("---")
     st.markdown("Options for Search")
-    NUM_OF_VIDEOS = st.number_input("Number of Videos to Extract", value=NUM_OF_VIDEOS)
-    TIME_DIVISION = st.number_input("Time Division (in seconds)", value=TIME_DIVISION)
-    NUM_OF_WORDS = st.number_input("Number of Words to Extract per Time Division", value=NUM_OF_WORDS)
+    NUM_OF_VIDEOS = st.number_input("The number of recommended videos", value=NUM_OF_VIDEOS)
+    TIME_DIVISION = st.number_input("The interval of segment (in seconds)", value=TIME_DIVISION)
+    NUM_OF_WORDS = st.number_input("The number of concepts extracted per each segment", value=NUM_OF_WORDS)
     st.markdown("---")
     st.markdown("@ 2023 Data science labs, Dong-A University, Korea.")
 
