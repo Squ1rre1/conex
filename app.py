@@ -9,13 +9,17 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import json
 import queue
 import re
+import os
 import pickle
 from pyvis.network import Network
+from datetime import datetime, timedelta
 
 # 옵션 기본값
 NUM_OF_VIDEOS = 10
 TIME_DIVISION = 600
 NUM_OF_WORDS = 5
+OUT_FILENAME = "watchedVideo_concepts.csv"
+# 
 
 # 유튜브 검색시 유튜브 리스트 저장
 class YoutubeVideo:
@@ -163,7 +167,7 @@ with st.sidebar:
                     - provides pre-filtered lectures to identify concepts that are not learned yet
                     - enables learners to catch those concepts in other lectures""")
     st.markdown("---")
-    st.markdown("Search Option")
+    st.markdown("Options for Search")
     NUM_OF_VIDEOS = st.number_input("Number of Videos to Extract", value=NUM_OF_VIDEOS)
     TIME_DIVISION = st.number_input("Time Division (in seconds)", value=TIME_DIVISION)
     NUM_OF_WORDS = st.number_input("Number of Words to Extract per Time Division", value=NUM_OF_WORDS)
@@ -249,7 +253,7 @@ def make_csv():
     df = pd.DataFrame(data)
 
     # Save DataFrame to a CSV file
-    df.to_csv('watchedVideo_concepts.csv', index=False)
+    df.to_csv(OUT_FILENAME, index=False)
 
 # csv파일을 통해 그래프 시각화
 def visualize_dynamic_network():
@@ -257,49 +261,57 @@ def visualize_dynamic_network():
 
     # set the physics layout of the network
     got_net.barnes_hut()
-    got_data = pd.read_csv("watchedVideo_concepts.csv")
 
-    videoname = got_data['videoname']
-    concept = got_data['concept']
-    pagerank = got_data['pagerank']
-    understand = got_data['understand']
-    
-    got_net.show_buttons(filter_=['physics'])
+    if os.path.exists(OUT_FILENAME): 
+        got_data = pd.read_csv(OUT_FILENAME)
 
-    edge_data = zip(videoname,concept,pagerank,understand)
-
-    for e in edge_data:
-        vid = e[0]
-        con = e[1]
-        pag = e[2]
-        und = e[3]
-
-        node_color = "red" if und == 1 else "black"
-        node_size = 50 + 1000 * pag #pagerank가 클수록 노드가 커지도록함
+        videoname = got_data['videoname']
+        concept = got_data['concept']
+        pagerank = got_data['pagerank']
+        understand = got_data['understand']
         
-        got_net.add_node(vid, vid, title=vid,size=100)
-        got_net.add_node(con, con, title=con, color=node_color, size=node_size)
-        got_net.add_edge(vid, con, value=1)
+        got_net.show_buttons(filter_=['physics'])
 
-    # 인접 노드 불러오기
-    # neighbor_map = got_net.get_adj_list()
+        edge_data = zip(videoname,concept,pagerank,understand)
 
-    # add neighbor data to node hover data
-    # for node in got_net.nodes:
-    #             node["title"] += " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
+        for e in edge_data:
+            vid = e[0]
+            con = e[1]
+            pag = e[2]
+            und = e[3]
 
-    got_net.show("gameofthrones.html")
+            node_color = "red" if und == 1 else "black"
+            node_size = 50 + 1000 * pag #pagerank가 클수록 노드가 커지도록함
+            
+            got_net.add_node(vid, vid, title=vid,size=100)
+            got_net.add_node(con, con, title=con, color=node_color, size=node_size)
+            got_net.add_edge(vid, con, value=1)
 
-    with open("gameofthrones.html", "r") as f:
-        graph_html = f.read()
-    st.components.v1.html(graph_html,width=1200, height=800) 
+        # 인접 노드 불러오기
+        # neighbor_map = got_net.get_adj_list()
+
+        # add neighbor data to node hover data
+        # for node in got_net.nodes:
+        #             node["title"] += " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
+
+        got_net.show("gameofthrones.html")
+
+        with open("gameofthrones.html", "r") as f:
+            graph_html = f.read()
+        st.components.v1.html(graph_html,width=1200, height=800) 
 
 # 개념 동그라미를 그리는 함수
 def extract_concepts(selected_video):
+    start_time = "2023-08-02 00:00:00"  # start time
+    start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+
     if selected_video.segment is not None:
         # Loop through each segment and display concepts in circular and rectangular buttons
         for seg_no, segment_data in selected_video.segment.groupby('seg_no'):
-            st.markdown(f"<h4>Segment {seg_no}</h4>", unsafe_allow_html=True)
+            start_segment = start_datetime + timedelta(seconds=(seg_no - 1) * TIME_DIVISION)
+            end_segment = start_datetime + timedelta(seconds=seg_no * TIME_DIVISION)
+
+            st.markdown(f"<h5>(segment {seg_no}) {start_segment.strftime('%H:%M:%S')} - {end_segment.strftime('%H:%M:%S')}</h5>", unsafe_allow_html=True)
 
             cols = st.columns(len(segment_data))
             
@@ -361,7 +373,7 @@ if search_button and user_input:
         pickle.dump(new_learning_list, file)
 
 # 페이지 1, 2, 3 
-tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concpets Network", "Watch Video"])
+tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching a Video"])
 
 # 선택된 영상 불러오기, 저장 이슈로 파일 입출력
 # selected_video = None
@@ -371,6 +383,7 @@ with open("selected_video.pkl", "rb") as file:
 #검색된 영상들
 with tab1:
     st.header("New Learning Videos")
+    st.write("The new learning videos contain new concepts that you have not been learned")
 
     NUM_OF_VIDOES_PER_EACH_ROW = 2
     
@@ -405,13 +418,13 @@ with tab1:
 
 #클릭한 영상을 크게 보여주는 탭 # selected_video 변수가 tab2,3에서 사용돼서 tab4 먼저 적음
 with tab4:
-    st.header("Watch Video")
+    st.header("Watching a Video")
+    st.write("This tab is to watch the selected lecture video. Please click on the concepts in the segment at the bottom if you understand them in the lecture. Are there any concepts you do not understand? CONEX recommends the sets of another lectures to help you understand the concepts you have not learned in the New Learning Video tab.")
 
     if selected_video:
         st.subheader(selected_video.name)
         st.video(selected_video.url)
-        st.write("Red words: understand")
-        st.write("Black words: don't understand yet")
+        st.write("Red words: you understand the concept, Black words: you don't understand it yet")
         if selected_video.segment is not None:
             extract_concepts(selected_video)
     else:
@@ -419,7 +432,8 @@ with tab4:
 
 #이해 못한 영상과 개념
 with tab2:
-    st.header("History Videos")
+    st.header("History of videos you watched")
+    st.write("This tab shows the history of lecture videos you watched.")
 
     for video in watchedVideo: 
         if video.segment['understand'].all() == 1:
@@ -436,7 +450,7 @@ with tab2:
             
             with info_column:
                 st.write(f"**{video.name}**")
-                st.write(f"Segment: \n")
+                st.write(f"Each segment is ({TIME_DIVISION} seconds): \n")
                 st.dataframe(video.segment)
 
 #이해한 개념
