@@ -10,6 +10,7 @@ import json
 import queue
 import re
 import pickle
+from pyvis.network import Network
 
 # 옵션 기본값
 NUM_OF_VIDEOS = 10
@@ -222,6 +223,77 @@ def search_youtubes(query, video_count):
     
     return YoutubeVideo.youtube_list
 
+def make_csv():
+    video_names = []
+    concepts = []
+    pageranks = []
+    understands = []
+
+    # Loop through each video in watchedVideo
+    for video in watchedVideo:
+        if video.segment is not None:
+            # Loop through each segment and its concepts
+            for seg_no, row in video.segment.iterrows():
+                video_names.append(video.name)
+                concepts.append(row['title'])
+                pageranks.append(row['pageRank'])
+                understands.append(row['understand'])
+
+    # Create a DataFrame from the lists
+    data = {
+        'videoname': video_names,
+        'concept': concepts,
+        'pagerank': pageranks,
+        'understand': understands
+    }
+    df = pd.DataFrame(data)
+
+    # Save DataFrame to a CSV file
+    df.to_csv('watchedVideo_concepts.csv', index=False)
+
+# csv파일을 통해 그래프 시각화
+def visualize_dynamic_network():
+    got_net = Network(width="1200px", height="800px", bgcolor="#222222", font_color="white", notebook=True)
+
+    # set the physics layout of the network
+    got_net.barnes_hut()
+    got_data = pd.read_csv("watchedVideo_concepts.csv")
+
+    videoname = got_data['videoname']
+    concept = got_data['concept']
+    pagerank = got_data['pagerank']
+    understand = got_data['understand']
+    
+    got_net.show_buttons(filter_=['physics'])
+
+    edge_data = zip(videoname,concept,pagerank,understand)
+
+    for e in edge_data:
+        vid = e[0]
+        con = e[1]
+        pag = e[2]
+        und = e[3]
+
+        node_color = "red" if und == 1 else "black"
+        node_size = 50 + 1000 * pag #pagerank가 클수록 노드가 커지도록함
+        
+        got_net.add_node(vid, vid, title=vid,size=100)
+        got_net.add_node(con, con, title=con, color=node_color, size=node_size)
+        got_net.add_edge(vid, con, value=1)
+
+    # 인접 노드 불러오기
+    # neighbor_map = got_net.get_adj_list()
+
+    # add neighbor data to node hover data
+    # for node in got_net.nodes:
+    #             node["title"] += " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
+
+    got_net.show("gameofthrones.html")
+
+    with open("gameofthrones.html", "r") as f:
+        graph_html = f.read()
+    st.components.v1.html(graph_html,width=1200, height=800) 
+
 # 개념 동그라미를 그리는 함수
 def extract_concepts(selected_video):
     if selected_video.segment is not None:
@@ -229,11 +301,11 @@ def extract_concepts(selected_video):
         for seg_no, segment_data in selected_video.segment.groupby('seg_no'):
             st.markdown(f"<h4>Segment {seg_no}</h4>", unsafe_allow_html=True)
 
+            cols = st.columns(len(segment_data))
+            
             # Display concepts with buttons
             for index, row in segment_data.iterrows():
                 title = row['title']
-                url = row['url']
-                page_rank = row['pageRank']
                 understand = row['understand']
 
                 # Button style based on understand column
@@ -242,23 +314,30 @@ def extract_concepts(selected_video):
                 else:
                     button_style = "red"
 
-                # Button click event
-                if st.button(f":{button_style}[{title}]", key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
-                    # Toggle 'understand' value when the button is clicked
-                    understand = selected_video.segment.at[index, 'understand']
+                with cols[index % len(segment_data)]:
+                    # Button click event
+                    if st.button(f":{button_style}[{title}]", key=f"{selected_video.name}_{seg_no}_{index}", help=f"{seg_no}_{index}"):
+                        # Toggle 'understand' value when the button is clicked
+                        understand = selected_video.segment.at[index, 'understand']
 
-                    if understand == 0:
-                        selected_video.segment.at[index, 'understand'] = 1
-                    else:
-                        selected_video.segment.at[index, 'understand'] = 0
-                    
-                    for idx,video in enumerate(watchedVideo):
-                        if(video.name==selected_video.name):
-                            watchedVideo[idx]=selected_video
-                            with open("watchedVideo.pkl", "wb") as file:
-                                pickle.dump(watchedVideo, file)
-                            with open("selected_video.pkl", "wb") as file:
-                                pickle.dump(selected_video, file)
+                        if understand == 0:
+                            clicked_word_url = row['url']
+                            # Update 'understand' to 1 for all rows with the same URL
+                            selected_video.segment.loc[selected_video.segment['url'] == clicked_word_url, 'understand'] = 1
+                        else:
+                            clicked_word_url = row['url']
+                            # Update 'understand' to 1 for all rows with the same URL
+                            selected_video.segment.loc[selected_video.segment['url'] == clicked_word_url, 'understand'] = 0
+                        
+                        for idx,video in enumerate(watchedVideo):
+                            if(video.name==selected_video.name):
+                                watchedVideo[idx]=selected_video
+                                with open("watchedVideo.pkl", "wb") as file:
+                                    pickle.dump(watchedVideo, file)
+                                with open("selected_video.pkl", "wb") as file:
+                                    pickle.dump(selected_video, file)
+                        
+                        make_csv() #csv파일로 df저장
     else:
         st.write("No segment information available for the selected video.")
 
@@ -282,7 +361,7 @@ if search_button and user_input:
         pickle.dump(new_learning_list, file)
 
 # 페이지 1, 2, 3 
-tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "Uncomprehended", "Completed", "Watch Video"])
+tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concpets Network", "Watch Video"])
 
 # 선택된 영상 불러오기, 저장 이슈로 파일 입출력
 # selected_video = None
@@ -340,9 +419,11 @@ with tab4:
 
 #이해 못한 영상과 개념
 with tab2:
-    st.header("Uncomprehended Videos")
+    st.header("History Videos")
 
     for video in watchedVideo: 
+        if video.segment['understand'].all() == 1:
+            continue
         if st.button(f"Re Watch: {video.name}"):  
             selected_video = video  # 클릭한 영상 정보 저장
             with open("selected_video.pkl", "wb") as file:
@@ -360,11 +441,8 @@ with tab2:
 
 #이해한 개념
 with tab3:
-    st.header("Completed Videos")
-
-    for video in watchedVideo: 
-        if video.segment is not None:
-            st.dataframe(video.segment)
+    st.header("Concpets Network Visualization of Watched Videos")
+    visualize_dynamic_network()
 
 with open('style.css', 'rt', encoding='UTF8') as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True )
