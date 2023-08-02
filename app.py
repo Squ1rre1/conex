@@ -157,7 +157,7 @@ st.set_page_config(page_title="CONEX: CONcept EXploration Unleashed", layout="wi
 # sidbar
 with st.sidebar:
     st.markdown("# CONEX: CONcept EXploration Unleashed")
-    st.write("Swimming in the vast sea of nline lectures")
+    st.write("Swimming in the vast sea of online lectures")
     st.markdown("## About")
     st.markdown("**CONEX** aids in the continuous exploration of specialized concept(a.k.a knowledge) that is yet unfamiliar, derived from a vast amount of online lectures.")
     st.markdown("## Features")
@@ -372,8 +372,8 @@ if search_button and user_input:
     with open("new_learning_list.pkl", "wb") as file:
         pickle.dump(new_learning_list, file)
 
-# 페이지 1, 2, 3 
-tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching a Video"])
+
+tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching"])
 
 # 선택된 영상 불러오기, 저장 이슈로 파일 입출력
 # selected_video = None
@@ -397,7 +397,7 @@ with tab1:
                     # 시청안했다면 시청 리스트에 포함 시키기
                     count=0
                     for video in watchedVideo:
-                        if(video.name==item.name):
+                        if (video.name==item.name):
                             count=1
                             selected_video = video  # 클릭한 영상 정보 저장
                             with open("selected_video.pkl", "wb") as file:
@@ -455,7 +455,7 @@ with tab2:
 
 #이해한 개념
 with tab3:
-    st.header("Concpets Network Visualization of Watched Videos")
+    st.header("Visualization: The network of concepts you have learned")
     visualize_dynamic_network()
 
 with open('style.css', 'rt', encoding='UTF8') as f:
