@@ -372,7 +372,6 @@ if search_button and user_input:
     with open("new_learning_list.pkl", "wb") as file:
         pickle.dump(new_learning_list, file)
 
-
 tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching"])
 
 # 선택된 영상 불러오기, 저장 이슈로 파일 입출력
