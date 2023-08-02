@@ -361,7 +361,7 @@ if search_button and user_input:
         pickle.dump(new_learning_list, file)
 
 # 페이지 1, 2, 3 
-tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Completed", "Watch Video"])
+tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concpets Network", "Watch Video"])
 
 # 선택된 영상 불러오기, 저장 이슈로 파일 입출력
 # selected_video = None
