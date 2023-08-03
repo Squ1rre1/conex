@@ -78,7 +78,7 @@ class Script_Exctractor:
             text = self.scriptData[i].replace(u'\xa0', u' ').replace(u'\n',u' ').replace(u'  ',u' ')
             self.scriptData[i] = text
 
-    def CallWikifier(self, text, lang="en", threshold=0.8, numberOfKCs=5):
+    def CallWikifier(self, text, lang="en", threshold=0.8, numberOfKCs=10):
         # Prepare the URL.
         data = urllib.parse.urlencode([
                 ("text", text), ("lang", lang),
@@ -256,7 +256,7 @@ def make_csv():
 
 # csv파일을 통해 그래프 시각화
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#EEEFFF", font_color="white", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="white", notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
@@ -379,7 +379,7 @@ with tab1:
     NUM_OF_VIDOES_PER_EACH_ROW = 2
     
     # New Learning에 표시할 영상
-    for r in range(5): # 몇줄 출력할지
+    for r in range(int(NUM_OF_VIDEOS/2)): # 몇줄 출력할지
         cols = st.columns(NUM_OF_VIDOES_PER_EACH_ROW)
         for idx, item in enumerate(new_learning_list[r*NUM_OF_VIDOES_PER_EACH_ROW:r*NUM_OF_VIDOES_PER_EACH_ROW+NUM_OF_VIDOES_PER_EACH_ROW]):
             with cols[idx]:
