@@ -18,8 +18,7 @@ from datetime import datetime, timedelta
 NUM_OF_VIDEOS = 10
 TIME_DIVISION = 600
 NUM_OF_WORDS = 5
-OUT_FILENAME = "watchedVideo_concepts.csv"
-# 
+OUT_FILENAME = "./data/watchedVideo_concepts.csv"
 
 # 유튜브 검색시 유튜브 리스트 저장
 class YoutubeVideo:
@@ -34,13 +33,13 @@ class YoutubeVideo:
         self.youtube_list.append(self)
 
 # 본 영상을 저장하는 리스트, 저장 이슈로 인해 파일입출력
-with open("watchedVideo.pkl", "rb") as file:
+with open("./data/watchedVideo.pkl", "rb") as file:
     watchedVideo = pickle.load(file)
 
-with open("new_learning_list.pkl", "rb") as file:
+with open("./data/new_learning_list.pkl", "rb") as file:
     new_learning_list = pickle.load(file)
 
-with open("selected_video.pkl", "rb") as file:
+with open("./data/selected_video.pkl", "rb") as file:
     selected_video = pickle.load(file)
 
 class Script_Exctractor:
@@ -79,7 +78,7 @@ class Script_Exctractor:
             text = self.scriptData[i].replace(u'\xa0', u' ').replace(u'\n',u' ').replace(u'  ',u' ')
             self.scriptData[i] = text
 
-    def CallWikifier(self, text, lang="en", threshold=0.8, numberOfKCs=5):
+    def CallWikifier(self, text, lang="en", threshold=0.8, numberOfKCs=10):
         # Prepare the URL.
         data = urllib.parse.urlencode([
                 ("text", text), ("lang", lang),
@@ -257,7 +256,7 @@ def make_csv():
 
 # csv파일을 통해 그래프 시각화
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#222222", font_color="white", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="white", notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
@@ -287,16 +286,9 @@ def visualize_dynamic_network():
             got_net.add_node(con, con, title=con, color=node_color, size=node_size)
             got_net.add_edge(vid, con, value=1)
 
-        # 인접 노드 불러오기
-        # neighbor_map = got_net.get_adj_list()
+        got_net.show("./data/gameofthrones.html")
 
-        # add neighbor data to node hover data
-        # for node in got_net.nodes:
-        #             node["title"] += " Neighbors:<br>" + "<br>".join(neighbor_map[node["id"]])
-
-        got_net.show("gameofthrones.html")
-
-        with open("gameofthrones.html", "r") as f:
+        with open("./data/gameofthrones.html", "r") as f:
             graph_html = f.read()
         st.components.v1.html(graph_html,width=1200, height=800) 
 
@@ -344,9 +336,9 @@ def extract_concepts(selected_video):
                         for idx,video in enumerate(watchedVideo):
                             if(video.name==selected_video.name):
                                 watchedVideo[idx]=selected_video
-                                with open("watchedVideo.pkl", "wb") as file:
+                                with open("./data/watchedVideo.pkl", "wb") as file:
                                     pickle.dump(watchedVideo, file)
-                                with open("selected_video.pkl", "wb") as file:
+                                with open("./data/selected_video.pkl", "wb") as file:
                                     pickle.dump(selected_video, file)
                         
                         make_csv() #csv파일로 df저장
@@ -369,14 +361,14 @@ if search_button and user_input:
             print(f"{index}번째 영상 삭제")
             new_learning_list.pop(index)
     print(f"영상 개수: {len(new_learning_list)}")
-    with open("new_learning_list.pkl", "wb") as file:
+    with open("./data/new_learning_list.pkl", "wb") as file:
         pickle.dump(new_learning_list, file)
 
 tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching"])
 
 # 선택된 영상 불러오기, 저장 이슈로 파일 입출력
 # selected_video = None
-with open("selected_video.pkl", "rb") as file:
+with open("./data/selected_video.pkl", "rb") as file:
     selected_video = pickle.load(file)
 
 #검색된 영상들
@@ -387,26 +379,27 @@ with tab1:
     NUM_OF_VIDOES_PER_EACH_ROW = 2
     
     # New Learning에 표시할 영상
-    for r in range(5): # 몇줄 출력할지
+    for r in range(int(NUM_OF_VIDEOS/2)): # 몇줄 출력할지
         cols = st.columns(NUM_OF_VIDOES_PER_EACH_ROW)
         for idx, item in enumerate(new_learning_list[r*NUM_OF_VIDOES_PER_EACH_ROW:r*NUM_OF_VIDOES_PER_EACH_ROW+NUM_OF_VIDOES_PER_EACH_ROW]):
             with cols[idx]:
                 if st.button(f"Watch: {item.name}"):  
                     # 이미 시청한 영상을 클릭하면 시청했던 영상 정보로 불러오기
                     # 시청안했다면 시청 리스트에 포함 시키기
+                    st.success('When you navigate to the "Watching" tab, you can watch videos.', icon="😃")
                     count=0
                     for video in watchedVideo:
                         if (video.name==item.name):
                             count=1
                             selected_video = video  # 클릭한 영상 정보 저장
-                            with open("selected_video.pkl", "wb") as file:
+                            with open("./data/selected_video.pkl", "wb") as file:
                                 pickle.dump(selected_video, file)
                     if(count==0):
                         watchedVideo.append(item) # 클릭 영상 리스트에 저장
-                        with open("watchedVideo.pkl", "wb") as file:
+                        with open("./data/watchedVideo.pkl", "wb") as file:
                             pickle.dump(watchedVideo, file)
                         selected_video = item  # 클릭한 영상 정보 저장
-                        with open("selected_video.pkl", "wb") as file:
+                        with open("./data/selected_video.pkl", "wb") as file:
                             pickle.dump(selected_video, file)
                 
                 st.video(item.url) # 영상 표시
@@ -431,7 +424,7 @@ with tab4:
 
 #이해 못한 영상과 개념
 with tab2:
-    st.header("History of videos you watched")
+    st.header("History of Videos You Watched")
     st.write("This tab shows the history of lecture videos you watched.")
 
     for video in watchedVideo: 
@@ -439,7 +432,7 @@ with tab2:
             continue
         if st.button(f"Re Watch: {video.name}"):  
             selected_video = video  # 클릭한 영상 정보 저장
-            with open("selected_video.pkl", "wb") as file:
+            with open("./data/selected_video.pkl", "wb") as file:
                 pickle.dump(selected_video, file)
         if video.segment is not None:
             video_column, info_column = st.columns([2, 3])
@@ -454,7 +447,8 @@ with tab2:
 
 #이해한 개념
 with tab3:
-    st.header("Visualization: The network of concepts you have learned")
+    st.header("Visualization: The Network of Concepts You Have Learned")
+    st.write("This tab visualizes the concepts encountered in the videos you've learned. Sky blue nodes represent the videos you've watched, while red nodes indicate the concepts you've understood. Black nodes represent concepts you haven't grasped yet. If different videos refer to the same concept, they will be connected as a single node.")
     visualize_dynamic_network()
 
 with open('style.css', 'rt', encoding='UTF8') as f:
