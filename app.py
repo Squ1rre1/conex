@@ -423,7 +423,7 @@ with tab4:
 
 #이해 못한 영상과 개념
 with tab2:
-    st.header("History of videos you watched")
+    st.header("History of Videos You Watched")
     st.write("This tab shows the history of lecture videos you watched.")
 
     for video in watchedVideo: 
@@ -446,7 +446,8 @@ with tab2:
 
 #이해한 개념
 with tab3:
-    st.header("Visualization: The network of concepts you have learned")
+    st.header("Visualization: The Network of Concepts You Have Learned")
+    st.write("This tab visualizes the concepts encountered in the videos you've learned. Sky blue nodes represent the videos you've watched, while red nodes indicate the concepts you've understood. Black nodes represent concepts you haven't grasped yet. If different videos refer to the same concept, they will be connected as a single node.")
     visualize_dynamic_network()
 
 with open('style.css', 'rt', encoding='UTF8') as f:
