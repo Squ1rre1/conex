@@ -386,6 +386,7 @@ with tab1:
                 if st.button(f"Watch: {item.name}"):  
                     # 이미 시청한 영상을 클릭하면 시청했던 영상 정보로 불러오기
                     # 시청안했다면 시청 리스트에 포함 시키기
+                    st.success('When you navigate to the "Watching" tab, you can watch videos.', icon="😃")
                     count=0
                     for video in watchedVideo:
                         if (video.name==item.name):
