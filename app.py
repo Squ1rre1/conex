@@ -14,13 +14,13 @@ import pickle
 from pyvis.network import Network
 from datetime import datetime, timedelta
 
-# 옵션 기본값
+# Default values for options
 NUM_OF_VIDEOS = 10
 TIME_DIVISION = 600
 NUM_OF_WORDS = 5
 OUT_FILENAME = "./data/watchedVideo_concepts.csv"
 
-# 유튜브 검색시 유튜브 리스트 저장
+# Saving YouTube Lists When Searching
 class YoutubeVideo:
     youtube_list = list()
     def __init__(self,name,url,desc,duration):
@@ -32,7 +32,7 @@ class YoutubeVideo:
         self.segment=None
         self.youtube_list.append(self)
 
-# 본 영상을 저장하는 리스트, 저장 이슈로 인해 파일입출력
+# List for Storing Watched Videos
 with open("./data/watchedVideo.pkl", "rb") as file:
     watchedVideo = pickle.load(file)
 
@@ -49,15 +49,15 @@ class Script_Exctractor:
         self.setTime = setTime
         self.wikiUserKey = "ecnkjsfhuuvmjfxdvdziepjwznhwdc"
 
-    # youtube script 추출
+    # youtube script extraction
     def Extract(self):
-        # youtube script 받아오기 위한 url 전처리부분
+        # Preprocessing URL for obtaining YouTube script
         parsedUrl = parse.urlparse(self.vid)
         vid = parse.parse_qs(parsedUrl.query)['v'][0]
         languages = ['en','en-US']
         str:list = YouTubeTranscriptApi.get_transcript(vid,languages)
 
-        # 저장된 json정보를 timeSet단위에 맞게 분리
+        # Splitting stored JSON information into time intervals (timeSet).
         ret = queue.Queue()
         nowSec = self.setTime
         sentence = ''
@@ -130,8 +130,6 @@ class Script_Exctractor:
         seg_no = 1
 
         for seg_item in results:
-            # seg_index = range(0,len(seg_item))
-            # seg_df = pd.DataFrame(seg_item,index = seg_index)
             seg_df = pd.DataFrame(seg_item)
             seg_df['seg_no'] = seg_no
             seg_df['understand']=0
@@ -139,6 +137,70 @@ class Script_Exctractor:
             seg_no = seg_no + 1
         wiki_data.index = range(len(wiki_data))
         return wiki_data
+
+# Video recommendation using Jaccard similarity.
+class VideoRecommender:
+    def __init__(self, threshold=0, alpha=0.8):
+        self.threshold = threshold
+        self.alpha = alpha
+        self.selected_video_set = set()
+        self.understood_words_watched = set()
+        self.ununderstood_words_watched = set()
+
+    # Jaccard similarity
+    def jaccard_similarity(self, set1, set2, recent_video=None):
+        if(recent_video==None):
+            intersection = len(set1.intersection(set2))
+            union = len(set1.union(set2))
+        else:
+            intersection = len((set1.intersection(set2)).difference(recent_video))
+            union = len(set1.union(set2).difference(recent_video))
+        return intersection / union if union != 0 else 0
+
+    # Function to Extract Concepts on a Word-by-Word Basis
+    def get_understood_words(self, video_list):
+        understood_words = set()
+        for video in video_list:
+            if video.segment is not None:
+                for index, row in video.segment.iterrows():
+                    if row['understand'] == 1:
+                        understood_words.add(row['title'])
+        return understood_words
+    
+    def get_ununderstood_words(self, video_list):
+        ununderstood_words = set()
+        for video in video_list:
+            if video.segment is not None:
+                for index, row in video.segment.iterrows():
+                    if row['understand'] == 0:
+                        ununderstood_words.add(row['title'])
+        return ununderstood_words
+
+    def set_watched_videos(self, watched_videos, selected_video):
+        self.selected_video_set = self.get_understood_words([selected_video])
+        self.understood_words_watched = self.get_understood_words(watched_videos)
+        self.ununderstood_words_watched = self.get_ununderstood_words(watched_videos)
+
+    def recommend_videos(self, new_videos):
+        recommended_videos = []
+
+        for video in new_videos:
+            if video.segment is not None:
+                ununderstood_words_new_video = self.get_ununderstood_words([video])
+                similarity_alpha = self.jaccard_similarity(self.ununderstood_words_watched, ununderstood_words_new_video)
+                similarity_beta = self.jaccard_similarity(self.understood_words_watched, ununderstood_words_new_video, recent_video=self.selected_video_set)
+                print(similarity_alpha, similarity_beta)
+                similarity = self.alpha*similarity_alpha+(1-self.alpha)*similarity_beta
+                print(similarity)
+                if similarity >= self.threshold:
+                    recommended_videos.append((video, similarity))  # Storing Videos Along with Similarity Scores
+    
+        # Sorting by Similarity Score in Descending Order
+        recommended_videos.sort(key=lambda x: x[1], reverse=True)
+        
+        # Extracting Sorted Videos
+        sorted_recommended_videos = [video for video, _ in recommended_videos]
+        return sorted_recommended_videos
 
 YOUTUBE_API_KEY = "AIzaSyCt74iOovLdzJMGCfsCAW4nAssQB8LJWo0"
 
@@ -153,7 +215,7 @@ youtube = googleapiclient.discovery.build(
 # Page config
 st.set_page_config(page_title="CONEX: CONcept EXploration Unleashed", layout="wide")
 
-# sidbar
+# sidebar
 with st.sidebar:
     st.markdown("# CONEX: CONcept EXploration Unleashed")
     st.write("Swimming in the vast sea of online lectures")
@@ -190,7 +252,7 @@ def duration_to_minutes(duration_str):
     return total_minutes
 
 def search_youtubes(query, video_count):
-    VIDEO_COUNT=video_count # 유튜브에서 들고 올 영상 수
+    VIDEO_COUNT=video_count # The number of videos to retrieve from YouTube
     PREFIX_YOUTUBE_URL = "https://www.youtube.com/watch?v="
     
     request = youtube.search().list(
@@ -205,10 +267,10 @@ def search_youtubes(query, video_count):
     response = request.execute()
     video_items = response.get('items', [])
 
-    # 유튜브 리스트 객체 생성
+    # Creating a list of YouTube objects
     for item in video_items:
         video_id = item['id']['videoId']
-        # 영상 길이 받아오는 쿼리
+        # Query to retrieve video duration
         video_request = youtube.videos().list(
             part='contentDetails',
             id=video_id
@@ -216,13 +278,13 @@ def search_youtubes(query, video_count):
         video_response = video_request.execute()
         duration = video_response['items'][0]['contentDetails']['duration']
         duration = duration_to_minutes(duration)
-        if(duration>9 and duration<120): # 영상 길이가 9분초과 120분 미만으로만 저장
+        if(duration>9 and duration<120): # Storing videos with a duration of over 9 minutes and under 120 minutes
             name = item['snippet']['title']
             url = PREFIX_YOUTUBE_URL + item['id']['videoId']
             desc = utils.truncate_text ( item['snippet']['description'] )
             video_init = YoutubeVideo(name=name,url=url,desc=desc,duration=duration)
         else:
-            print("영상 길이 문제로 필터링됨")
+            print("Filtered due to video length issue.")
     
     return YoutubeVideo.youtube_list
 
@@ -254,7 +316,7 @@ def make_csv():
     # Save DataFrame to a CSV file
     df.to_csv(OUT_FILENAME, index=False)
 
-# csv파일을 통해 그래프 시각화
+# Visualizing the graph through a CSV file
 def visualize_dynamic_network():
     got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="white", notebook=True)
 
@@ -280,7 +342,7 @@ def visualize_dynamic_network():
             und = e[3]
 
             node_color = "red" if und == 1 else "black"
-            node_size = 50 + 1000 * pag #pagerank가 클수록 노드가 커지도록함
+            node_size = 50 + 1000 * pag # Increasing the node size based on the pagerank value
             
             got_net.add_node(vid, vid, title=vid,size=100)
             got_net.add_node(con, con, title=con, color=node_color, size=node_size)
@@ -292,7 +354,7 @@ def visualize_dynamic_network():
             graph_html = f.read()
         st.components.v1.html(graph_html,width=1200, height=800) 
 
-# 개념 동그라미를 그리는 함수
+# Function to draw concept circles.
 def extract_concepts(selected_video):
     start_time = "2023-08-02 00:00:00"  # start time
     start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
@@ -330,7 +392,7 @@ def extract_concepts(selected_video):
                             selected_video.segment.loc[selected_video.segment['url'] == clicked_word_url, 'understand'] = 1
                         else:
                             clicked_word_url = row['url']
-                            # Update 'understand' to 1 for all rows with the same URL
+                            # Update 'understand' to 0 for all rows with the same URL
                             selected_video.segment.loc[selected_video.segment['url'] == clicked_word_url, 'understand'] = 0
                         
                         for idx,video in enumerate(watchedVideo):
@@ -341,74 +403,78 @@ def extract_concepts(selected_video):
                                 with open("./data/selected_video.pkl", "wb") as file:
                                     pickle.dump(selected_video, file)
                         
-                        make_csv() #csv파일로 df저장
+                        make_csv() # Save DataFrame to a CSV file
     else:
         st.write("No segment information available for the selected video.")
 
 user_input = get_text()
-search_button = st.button("Search")  # 버튼 추가
+search_button = st.button("Search")  # Add a button
 
 if search_button and user_input:
-    new_learning_list = search_youtubes(user_input, NUM_OF_VIDEOS) # 검색한 영상 받아온 리스트
-    # 위키화 및 랭크
+    new_learning_list = search_youtubes(user_input, NUM_OF_VIDEOS) # List of retrieved videos from the search
+    # Wikification and ranking
     for index, video in enumerate(new_learning_list):
         try:
             Scripts = Script_Exctractor(video.url, TIME_DIVISION)
             video.segment = Scripts.UrltoWiki()
-            # print(video.segment) # 각 영상당 만들어진 segment 출력
+            # print(video.segment) # Display segments created for each video
         except Exception as ex:
-            # print(ex) # 에러문 출력
-            print(f"{index}번째 영상 삭제")
+            # print(ex) # Outputting error messages
+            print(f"Deleting the video at index {index}")
             new_learning_list.pop(index)
-    print(f"영상 개수: {len(new_learning_list)}")
+    
+    # Video recommendation system using Jaccard similarity
+    recommender = VideoRecommender()
+    recommender.set_watched_videos(watchedVideo, selected_video)
+    new_learning_list = recommender.recommend_videos(new_learning_list)
+    
+    print(f"Number of videos: {len(new_learning_list)}")
     with open("./data/new_learning_list.pkl", "wb") as file:
         pickle.dump(new_learning_list, file)
 
 tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching"])
 
-# 선택된 영상 불러오기, 저장 이슈로 파일 입출력
-# selected_video = None
+# Load selected video
 with open("./data/selected_video.pkl", "rb") as file:
     selected_video = pickle.load(file)
 
-#검색된 영상들
+# Searched videos
 with tab1:
     st.header("New Learning Videos")
     st.write("The new learning videos contain new concepts that you have not been learned")
 
     NUM_OF_VIDOES_PER_EACH_ROW = 2
     
-    # New Learning에 표시할 영상
-    for r in range(int(NUM_OF_VIDEOS/2)): # 몇줄 출력할지
+    # Videos to display in the New Learning tab
+    for r in range(int(NUM_OF_VIDEOS/2)): # How many lines to display
         cols = st.columns(NUM_OF_VIDOES_PER_EACH_ROW)
         for idx, item in enumerate(new_learning_list[r*NUM_OF_VIDOES_PER_EACH_ROW:r*NUM_OF_VIDOES_PER_EACH_ROW+NUM_OF_VIDOES_PER_EACH_ROW]):
             with cols[idx]:
                 if st.button(f"Watch: {item.name}"):  
-                    # 이미 시청한 영상을 클릭하면 시청했던 영상 정보로 불러오기
-                    # 시청안했다면 시청 리스트에 포함 시키기
+                    # Clicking on a previously watched video to load its information
+                    # If not watched, include it in the watched list
                     st.success('When you navigate to the "Watching" tab, you can watch videos.', icon="😃")
                     count=0
                     for video in watchedVideo:
                         if (video.name==item.name):
                             count=1
-                            selected_video = video  # 클릭한 영상 정보 저장
+                            selected_video = video  # Storing information of the clicked video
                             with open("./data/selected_video.pkl", "wb") as file:
                                 pickle.dump(selected_video, file)
                     if(count==0):
-                        watchedVideo.append(item) # 클릭 영상 리스트에 저장
+                        watchedVideo.append(item) # Saving the clicked video to the watched video list
                         with open("./data/watchedVideo.pkl", "wb") as file:
                             pickle.dump(watchedVideo, file)
-                        selected_video = item  # 클릭한 영상 정보 저장
+                        selected_video = item  # Storing the information of the clicked video
                         with open("./data/selected_video.pkl", "wb") as file:
                             pickle.dump(selected_video, file)
                 
-                st.video(item.url) # 영상 표시
-                #extract_concepts(item.url)
+                st.video(item.url) # Show Video
 
                 st.write(f"**{item.name}**")
                 st.write(item.desc)
 
-#클릭한 영상을 크게 보여주는 탭 # selected_video 변수가 tab2,3에서 사용돼서 tab4 먼저 적음
+# Displaying Clicked Video Tab: I'm providing the code for tab4 first since the 'selected_video' variable is used in tab2 and tab3.
 with tab4:
     st.header("Watching a Video")
     st.write("This tab is to watch the selected lecture video. Please click on the concepts in the segment at the bottom if you understand them in the lecture. Are there any concepts you do not understand? CONEX recommends the sets of another lectures to help you understand the concepts you have not learned in the New Learning Video tab.")
@@ -422,7 +488,7 @@ with tab4:
     else:
         st.write("Click on a video in 'New Learning Videos' tab to watch it here.")
 
-#이해 못한 영상과 개념
+# Previously Viewed Videos and Concepts
 with tab2:
     st.header("History of Videos You Watched")
     st.write("This tab shows the history of lecture videos you watched.")
@@ -431,7 +497,7 @@ with tab2:
         if video.segment['understand'].all() == 1:
             continue
         if st.button(f"Re Watch: {video.name}"):  
-            selected_video = video  # 클릭한 영상 정보 저장
+            selected_video = video  # Saving Clicked Video Information
             with open("./data/selected_video.pkl", "wb") as file:
                 pickle.dump(selected_video, file)
         if video.segment is not None:
@@ -445,7 +511,7 @@ with tab2:
                 st.write(f"Each segment is ({TIME_DIVISION} seconds): \n")
                 st.dataframe(video.segment)
 
-#이해한 개념
+# Visualization: The Network of Concepts You Have Learned
 with tab3:
     st.header("Visualization: The Network of Concepts You Have Learned")
     st.write("This tab visualizes the concepts encountered in the videos you've learned. Sky blue nodes represent the videos you've watched, while red nodes indicate the concepts you've understood. Black nodes represent concepts you haven't grasped yet. If different videos refer to the same concept, they will be connected as a single node.")
