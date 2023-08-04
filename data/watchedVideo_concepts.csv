@@ -1,0 +1,111 @@
+videoname,concept,pagerank,understand
+Building a Recommendation System in Python,Recommender system,0.01135012688689603,1
+Building a Recommendation System in Python,Collaborative filtering,0.008677065292022501,1
+Building a Recommendation System in Python,Algorithm,0.007844176867712912,1
+Building a Recommendation System in Python,Matrix (mathematics),0.007594227408368256,1
+Building a Recommendation System in Python,K-means clustering,0.006933106985910339,1
+Building a Recommendation System in Python,Loss function,0.009918880735097203,1
+Building a Recommendation System in Python,Algorithm,0.009845971992327394,1
+Building a Recommendation System in Python,Tensor,0.00954293292210567,1
+Building a Recommendation System in Python,Pulp magazine,0.008682279090094109,1
+Building a Recommendation System in Python,Batman (military),0.008309781424329319,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Collaborative filtering,0.0255126161664881,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Recommender system,0.01991833016632282,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Machine learning,0.005730795785416912,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),E-commerce,0.005413691851245106,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Netflix,0.005399464768871124,0
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Machine learning,0.009009433808284126,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Precision and recall,0.008918422909295417,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Matrix (mathematics),0.007452769460471587,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Least squares,0.007048685113135376,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Algorithm,0.005854793193300187,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Recommender system,0.0290170382399901,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Least squares,0.01868973813259117,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Neural network,0.01638488058477423,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Data set,0.01344336179998226,1
+How to Design and Build a Recommendation System Pipeline in Python (Jill Cates),Serendipity,0.01282364108371957,0
+Python Machine Learning Tutorial (Data Science),Machine learning,0.03491854859972368,1
+Python Machine Learning Tutorial (Data Science),Scikit-learn,0.006993028274104263,1
+Python Machine Learning Tutorial (Data Science),Algorithm,0.006231642666499467,1
+Python Machine Learning Tutorial (Data Science),Artificial intelligence,0.004621684944129508,0
+Python Machine Learning Tutorial (Data Science),Home directory,0.003991308103781364,0
+Python Machine Learning Tutorial (Data Science),Data set,0.009913565214863166,1
+Python Machine Learning Tutorial (Data Science),"""Hello, World!"" program",0.007975198806094997,0
+Python Machine Learning Tutorial (Data Science),Data science,0.007014062645271928,0
+Python Machine Learning Tutorial (Data Science),Machine learning,0.00699244738024456,1
+Python Machine Learning Tutorial (Data Science),Frame (networking),0.006837173863584774,0
+Python Machine Learning Tutorial (Data Science),Machine learning,0.01830651780656233,1
+Python Machine Learning Tutorial (Data Science),Scikit-learn,0.00929369156277548,1
+Python Machine Learning Tutorial (Data Science),Algorithm,0.007555350880314568,1
+Python Machine Learning Tutorial (Data Science),Hip hop music,0.005924465047523941,1
+Python Machine Learning Tutorial (Data Science),Data set,0.005796751569630415,1
+Python Machine Learning Tutorial (Data Science),Machine learning,0.01688692735325046,1
+Python Machine Learning Tutorial (Data Science),Hip hop music,0.01303914778292553,1
+Python Machine Learning Tutorial (Data Science),Decision tree,0.01055965181724905,1
+Python Machine Learning Tutorial (Data Science),Data set,0.009763008932480683,1
+Python Machine Learning Tutorial (Data Science),Algorithm,0.00619139719410777,1
+Python Machine Learning Tutorial (Data Science),Decision tree,0.01704722977400548,1
+Python Machine Learning Tutorial (Data Science),Hip hop music,0.008157774667911729,1
+Python Machine Learning Tutorial (Data Science),Data set,0.007303280146112267,1
+Python Machine Learning Tutorial (Data Science),Machine learning,0.007127232088365624,1
+Python Machine Learning Tutorial (Data Science),Floating-point arithmetic,0.005331675857719581,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),TensorFlow,0.03414890608158309,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),Machine learning,0.0151321248515966,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),YouTube,0.01016990381772018,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),Recommender system,0.008675546475256778,1
+Recommendation systems overview (Building recommendation systems with TensorFlow),Google Play,0.006125877276232725,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),TensorFlow,0.04939035446435237,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),Recommender system,0.0298985968725483,1
+Recommendation systems overview (Building recommendation systems with TensorFlow),Machine learning,0.02131567567827719,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),Collaborative filtering,0.01578677743066536,0
+Recommendation systems overview (Building recommendation systems with TensorFlow),Open-source software,0.01357227103371746,0
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Netflix,0.029776985599127,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Recommender system,0.0167534134998875,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,University of Washington,0.00848193542116742,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Amazon (company),0.008022464136144564,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,LinkedIn,0.007240625092013557,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Collaborative filtering,0.02236512606369587,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Netflix,0.01705207961861977,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Recommender system,0.01133675998592937,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Amazon (company),0.006146481490062602,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,YouTube,0.006080558042462359,0
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Dot product,0.02189936299333077,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Collaborative filtering,0.01361213417036839,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Matrix completion,0.0125911177968442,0
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Recommender system,0.008888873484006353,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Machine learning,0.007895275166614958,0
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Collaborative filtering,0.01753343600915191,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Dot product,0.01280432797295295,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Cosine similarity,0.01192922098360753,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Recommender system,0.009640102300232312,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Deep learning,0.009537118170609015,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Energy Brands,0.02006426790380351,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Machine learning,0.01493150219046272,0
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Netflix,0.00828941954213827,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Water right,0.006572569361663927,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Ziploc,0.006183918026935759,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Cross entropy,0.0132448214802526,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Recommender system,0.01099059056097532,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Collaborative filtering,0.009740864223910675,1
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Entropy,0.007117129794240074,0
+Design of Recommendation Systems | Recommender Systems using Deep Learning Explained,Latency (engineering),0.007026325776753928,0
+Machine Learning System Design (YouTube Recommendation System),Recommender system,0.01130855204503533,1
+Machine Learning System Design (YouTube Recommendation System),Random forest,0.01000507425202773,0
+Machine Learning System Design (YouTube Recommendation System),Logistic regression,0.008704355196865248,0
+Machine Learning System Design (YouTube Recommendation System),Active users,0.008535921180712119,0
+Machine Learning System Design (YouTube Recommendation System),Web browser,0.00831166557711923,0
+Machine Learning System Design (YouTube Recommendation System),Logit,0.0336677021466452,0
+Machine Learning System Design (YouTube Recommendation System),Probability,0.01547569742822027,0
+Machine Learning System Design (YouTube Recommendation System),Logic,0.01378798481736731,0
+Machine Learning System Design (YouTube Recommendation System),Recommender system,0.01217798763676692,1
+Machine Learning System Design (YouTube Recommendation System),Apple,0.01216004761636112,0
+EECS6895 project - Job Recommendation System,Natural language processing,0.01114982713228588,0
+EECS6895 project - Job Recommendation System,Part-of-speech tagging,0.01015853560398818,1
+EECS6895 project - Job Recommendation System,Machine learning,0.009836795996761865,0
+EECS6895 project - Job Recommendation System,Tag cloud,0.007474721519632251,0
+EECS6895 project - Job Recommendation System,Recommender system,0.006086933981673283,0
+EECS6895 project - Job Recommendation System,Graphic design,0.01546051753551928,0
+EECS6895 project - Job Recommendation System,Frontend and backend,0.01296114057432266,0
+EECS6895 project - Job Recommendation System,Software engineering,0.01150049763094596,1
+EECS6895 project - Job Recommendation System,Parsing,0.0112560816530519,1
+EECS6895 project - Job Recommendation System,User interface,0.01040633704187854,0
