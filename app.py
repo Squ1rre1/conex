@@ -434,7 +434,7 @@ if search_button and user_input:
     with open("./data/new_learning_list.pkl", "wb") as file:
         pickle.dump(new_learning_list, file)
 
-tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching"])
+tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Map", "Watching"])
 
 # Load selected video
 with open("./data/selected_video.pkl", "rb") as file:
