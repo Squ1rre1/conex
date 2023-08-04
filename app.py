@@ -31,6 +31,7 @@ class YoutubeVideo:
         self.duration=duration
         self.watch=False
         self.segment=None
+        self.similarity = 0
         self.youtube_list.append(self)
 
 # List for Storing Watched Videos
@@ -193,6 +194,7 @@ class VideoRecommender:
                 similarity = self.alpha*similarity_alpha+(1-self.alpha)*similarity_beta
                 if similarity >= self.threshold:
                     recommended_videos.append((video, similarity))  # Storing Videos Along with Similarity Scores
+                    video.similarity = similarity
     
         # Sorting by Similarity Score in Descending Order
         recommended_videos.sort(key=lambda x: x[1], reverse=True)
@@ -212,14 +214,14 @@ youtube = googleapiclient.discovery.build(
     api_service_name, api_version, developerKey = YOUTUBE_API_KEY)
 
 # Page config
-st.set_page_config(page_title="CONEX: CONcept EXploration Unleashed", layout="wide")
+st.set_page_config(page_title="CONREC: Continuous Recommendation of Online Learning Videos Based on Concept Maps", layout="wide")
 
 # sidebar
 with st.sidebar:
-    st.markdown("# CONEX: CONcept EXploration Unleashed")
+    st.markdown("# CONREC")
     st.write("Swimming in the vast sea of online lectures")
     st.markdown("## About")
-    st.markdown("**CONEX** aids in the continuous exploration of specialized concept(a.k.a knowledge) that is yet unfamiliar, derived from a vast amount of online lectures.")
+    st.markdown("**CONREC** aids in the continuous exploration of specialized concept(a.k.a knowledge) that is yet unfamiliar, derived from a vast amount of online lectures.")
     st.markdown("## Features")
     st.markdown(""" 
                     - allows learners to easily and quickly access new concepts related to the specialized knowledge within lectures
@@ -231,7 +233,7 @@ with st.sidebar:
     NUM_OF_VIDEOS = st.number_input("The number of recommended videos", value=NUM_OF_VIDEOS)
     TIME_DIVISION = st.number_input("The interval of segment (in seconds)", value=TIME_DIVISION)
     NUM_OF_WORDS = st.number_input("The number of concepts extracted per each segment", value=NUM_OF_WORDS)
-    ALPHA_OF_SIMILARITY = st.slider('The number of similarity weight', 0.0, 1.0, ALPHA_OF_SIMILARITY, step=0.01)
+    ALPHA_OF_SIMILARITY = st.slider('The weight of similarity', 0.0, 1.0, ALPHA_OF_SIMILARITY, step=0.01)
     st.markdown("###### As the number approaches 1, the recommended videos tend to include entirely new concepts. Conversely, as the number approaches 0, the suggested videos are more likely to contain slightly novel concepts in comparison to videos you've already watched. (Default: 0.8)")
     st.markdown("---")
     st.markdown("@ 2023 Data science labs, Dong-A University, Korea.")
@@ -319,7 +321,7 @@ def make_csv():
 
 # Visualizing the graph through a CSV file
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="white", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="black", notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
@@ -343,10 +345,11 @@ def visualize_dynamic_network():
             und = e[3]
 
             node_color = "red" if und == 1 else "black"
-            node_size = 50 + 1000 * pag # Increasing the node size based on the pagerank value
+            edge_label = "has been learned from" if und == 1 else "can be learned in"
+            node_size = 50 + 10000 * pag # Increasing the node size based on the pagerank value
             
-            got_net.add_node(vid, vid, title=vid,size=100)
-            got_net.add_node(con, con, title=con, color=node_color, size=node_size)
+            got_net.add_node(vid, label=vid, title=vid, size=100)
+            got_net.add_node(con, label=con, title=con, color=node_color, size=node_size)
             got_net.add_edge(vid, con, value=1)
 
         got_net.show("./data/gameofthrones.html")
@@ -433,7 +436,7 @@ if search_button and user_input:
     with open("./data/new_learning_list.pkl", "wb") as file:
         pickle.dump(new_learning_list, file)
 
-tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Network", "Watching"])
+tab1, tab2, tab3, tab4  = st.tabs(["New Learning", "History", "Concepts Map", "Watching"])
 
 # Load selected video
 with open("./data/selected_video.pkl", "rb") as file:
@@ -471,14 +474,15 @@ with tab1:
                             pickle.dump(selected_video, file)
                 
                 st.video(item.url) # Show Video
-
+                st.success(f"Recommended score: {item.similarity}")
                 st.write(f"**{item.name}**")
+                # st.write(f"Recommended score {}")
                 st.write(item.desc)
 
 # Displaying Clicked Video Tab: I'm providing the code for tab4 first since the 'selected_video' variable is used in tab2 and tab3.
 with tab4:
     st.header("Watching a Video")
-    st.write("This tab is to watch the selected lecture video. Please click on the concepts in the segment at the bottom if you understand them in the lecture. Are there any concepts you do not understand? CONEX recommends the sets of another lectures to help you understand the concepts you have not learned in the New Learning Video tab.")
+    st.write("This tab is to watch the selected lecture video. Please click on the concepts in the segment at the bottom if you understand them in the lecture. Are there any concepts you do not understand? CONREC recommends the sets of another lectures to help you understand the concepts you have not learned in the New Learning Video tab.")
 
     if selected_video:
         st.subheader(selected_video.name)
