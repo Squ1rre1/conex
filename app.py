@@ -212,14 +212,14 @@ youtube = googleapiclient.discovery.build(
     api_service_name, api_version, developerKey = YOUTUBE_API_KEY)
 
 # Page config
-st.set_page_config(page_title="CONEX: CONcept EXploration Unleashed", layout="wide")
+st.set_page_config(page_title="CONREC: Continuous Recommendation of Online Learning Videos Based on Concept Maps", layout="wide")
 
 # sidebar
 with st.sidebar:
-    st.markdown("# CONEX: CONcept EXploration Unleashed")
+    st.markdown("# CONREC")
     st.write("Swimming in the vast sea of online lectures")
     st.markdown("## About")
-    st.markdown("**CONEX** aids in the continuous exploration of specialized concept(a.k.a knowledge) that is yet unfamiliar, derived from a vast amount of online lectures.")
+    st.markdown("**CONREC** aids in the continuous exploration of specialized concept(a.k.a knowledge) that is yet unfamiliar, derived from a vast amount of online lectures.")
     st.markdown("## Features")
     st.markdown(""" 
                     - allows learners to easily and quickly access new concepts related to the specialized knowledge within lectures
@@ -480,7 +480,7 @@ with tab1:
 # Displaying Clicked Video Tab: I'm providing the code for tab4 first since the 'selected_video' variable is used in tab2 and tab3.
 with tab4:
     st.header("Watching a Video")
-    st.write("This tab is to watch the selected lecture video. Please click on the concepts in the segment at the bottom if you understand them in the lecture. Are there any concepts you do not understand? CONEX recommends the sets of another lectures to help you understand the concepts you have not learned in the New Learning Video tab.")
+    st.write("This tab is to watch the selected lecture video. Please click on the concepts in the segment at the bottom if you understand them in the lecture. Are there any concepts you do not understand? CONREC recommends the sets of another lectures to help you understand the concepts you have not learned in the New Learning Video tab.")
 
     if selected_video:
         st.subheader(selected_video.name)
