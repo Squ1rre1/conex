@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 NUM_OF_VIDEOS = 10
 TIME_DIVISION = 600
 NUM_OF_WORDS = 5
+ALPHA_OF_SIMILARITY = 0.8
 OUT_FILENAME = "./data/watchedVideo_concepts.csv"
 
 # Saving YouTube Lists When Searching
@@ -140,7 +141,7 @@ class Script_Exctractor:
 
 # Video recommendation using Jaccard similarity.
 class VideoRecommender:
-    def __init__(self, threshold=0, alpha=0.8):
+    def __init__(self, threshold=0, alpha=ALPHA_OF_SIMILARITY):
         self.threshold = threshold
         self.alpha = alpha
         self.selected_video_set = set()
@@ -189,9 +190,7 @@ class VideoRecommender:
                 ununderstood_words_new_video = self.get_ununderstood_words([video])
                 similarity_alpha = self.jaccard_similarity(self.ununderstood_words_watched, ununderstood_words_new_video)
                 similarity_beta = self.jaccard_similarity(self.understood_words_watched, ununderstood_words_new_video, recent_video=self.selected_video_set)
-                print(similarity_alpha, similarity_beta)
                 similarity = self.alpha*similarity_alpha+(1-self.alpha)*similarity_beta
-                print(similarity)
                 if similarity >= self.threshold:
                     recommended_videos.append((video, similarity))  # Storing Videos Along with Similarity Scores
     
@@ -232,6 +231,8 @@ with st.sidebar:
     NUM_OF_VIDEOS = st.number_input("The number of recommended videos", value=NUM_OF_VIDEOS)
     TIME_DIVISION = st.number_input("The interval of segment (in seconds)", value=TIME_DIVISION)
     NUM_OF_WORDS = st.number_input("The number of concepts extracted per each segment", value=NUM_OF_WORDS)
+    ALPHA_OF_SIMILARITY = st.slider('The number of similarity weight', 0.0, 1.0, ALPHA_OF_SIMILARITY, step=0.01)
+    st.markdown("###### As the number approaches 1, the recommended videos tend to include entirely new concepts. Conversely, as the number approaches 0, the suggested videos are more likely to contain slightly novel concepts in comparison to videos you've already watched. (Default: 0.8)")
     st.markdown("---")
     st.markdown("@ 2023 Data science labs, Dong-A University, Korea.")
 
