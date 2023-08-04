@@ -5,6 +5,10 @@ Swimming in the vast sea of online lectures
 
 ## Screenshots
 
+### Recommendation of New Learning Videos Based on Concept Maps
+
+### Concept Maps: Users' Learnable/Learned Concepts
+
 ## Features
   - allows learners to easily and quickly access new concepts related to the specialized knowledge within lectures
   - assists in understanding their definitions on Wikipedia
@@ -16,6 +20,5 @@ Swimming in the vast sea of online lectures
   > pip install -r requirement.txt
   > streamlit run app.py
 ```
-
 
 ## References
