@@ -155,8 +155,8 @@ class VideoRecommender:
             intersection = len(set1.intersection(set2))
             union = len(set1.union(set2))
         else:
-            intersection = len((set1.intersection(set2)).difference(recent_video))
-            union = len(set1.union(set2).difference(recent_video))
+            intersection = len((set1.difference(recent_video)).intersection(set2))
+            union = len((set1.difference(recent_video)).union(set2))
         return intersection / union if union != 0 else 0
 
     # Function to Extract Concepts on a Word-by-Word Basis
@@ -179,7 +179,8 @@ class VideoRecommender:
         return ununderstood_words
 
     def set_watched_videos(self, watched_videos, selected_video):
-        self.selected_video_set = self.get_understood_words([selected_video])
+        if(selected_video!=None):
+            self.selected_video_set = self.get_understood_words([selected_video])
         self.understood_words_watched = self.get_understood_words(watched_videos)
         self.ununderstood_words_watched = self.get_ununderstood_words(watched_videos)
 
@@ -321,7 +322,7 @@ def make_csv():
 
 # Visualizing the graph through a CSV file
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF",directed=True, font_color="black", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF",directed=True, font_color="black",cdn_resources='remote', notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
