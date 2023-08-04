@@ -6,8 +6,10 @@ Swimming in the vast sea of online lectures
 ## Screenshots
 
 ### Recommendation of New Learning Videos Based on Concept Maps
+![image](https://github.com/choibumku00/conex/assets/101037541/4eae1fb0-e1e2-4eb4-a3f3-00d3119f5af7)
 
 ### Concept Maps: Users' Learnable/Learned Concepts
+![image](https://github.com/choibumku00/conex/assets/101037541/1830682e-ee59-4d0a-b13d-ac3c6ee3d4c9)
 
 ## Features
   - recommends new learning videos based on concept maps relating to a specifc subject, i.e., recommendation system
@@ -22,12 +24,5 @@ Swimming in the vast sea of online lectures
   > pip install -r requirement.txt
   > streamlit run app.py
 ```
-
-### Recommendation of New Learning Videos Based on Concept Maps
-![image](https://github.com/choibumku00/conex/assets/101037541/4eae1fb0-e1e2-4eb4-a3f3-00d3119f5af7)
-
-
-### Concept Maps: Users' Learnable/Learned Concepts
-![image](https://github.com/choibumku00/conex/assets/101037541/1830682e-ee59-4d0a-b13d-ac3c6ee3d4c9)
 
 ## References
