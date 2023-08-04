@@ -321,7 +321,7 @@ def make_csv():
 
 # Visualizing the graph through a CSV file
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="white", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", directed=True, font_color="white", notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
