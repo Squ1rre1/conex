@@ -350,7 +350,7 @@ def visualize_dynamic_network():
             
             got_net.add_node(vid, label=vid, title=vid, size=100)
             got_net.add_node(con, label=con, title=con, color=node_color, size=node_size)
-            got_net.add_edge(vid, con, value=1)
+            got_net.add_edge(vid, con, value=1, label=edge_label)
 
         got_net.show("./data/gameofthrones.html")
 
