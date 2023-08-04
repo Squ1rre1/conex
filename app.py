@@ -31,6 +31,7 @@ class YoutubeVideo:
         self.duration=duration
         self.watch=False
         self.segment=None
+        self.similarity = 0
         self.youtube_list.append(self)
 
 # List for Storing Watched Videos
@@ -193,6 +194,7 @@ class VideoRecommender:
                 similarity = self.alpha*similarity_alpha+(1-self.alpha)*similarity_beta
                 if similarity >= self.threshold:
                     recommended_videos.append((video, similarity))  # Storing Videos Along with Similarity Scores
+                    video.similarity = similarity
     
         # Sorting by Similarity Score in Descending Order
         recommended_videos.sort(key=lambda x: x[1], reverse=True)
@@ -319,7 +321,7 @@ def make_csv():
 
 # Visualizing the graph through a CSV file
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="black", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF",directed=True, font_color="black", notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
@@ -472,7 +474,7 @@ with tab1:
                             pickle.dump(selected_video, file)
                 
                 st.video(item.url) # Show Video
-
+                st.success(f"Recommended score: {item.similarity}")
                 st.write(f"**{item.name}**")
                 # st.write(f"Recommended score {}")
                 st.write(item.desc)
