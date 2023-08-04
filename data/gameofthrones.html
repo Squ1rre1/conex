@@ -1,0 +1,178 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 1200px;
+                 height: 800px;
+                 background-color: #EEEEEF;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "black"}, "id": "Building a Recommendation System in Python", "label": "Building a Recommendation System in Python", "shape": "dot", "size": 100, "title": "Building a Recommendation System in Python"}, {"color": "red", "font": {"color": "black"}, "id": "Recommender system", "label": "Recommender system", "shape": "dot", "size": 163.50126886895998, "title": "Recommender system"}, {"color": "red", "font": {"color": "black"}, "id": "Collaborative filtering", "label": "Collaborative filtering", "shape": "dot", "size": 136.770652920225, "title": "Collaborative filtering"}, {"color": "red", "font": {"color": "black"}, "id": "Algorithm", "label": "Algorithm", "shape": "dot", "size": 128.441768677129, "title": "Algorithm"}, {"color": "black", "font": {"color": "black"}, "id": "Matrix (mathematics)", "label": "Matrix (mathematics)", "shape": "dot", "size": 125.942274083682, "title": "Matrix (mathematics)"}, {"color": "black", "font": {"color": "black"}, "id": "K-means clustering", "label": "K-means clustering", "shape": "dot", "size": 119.331069859103, "title": "K-means clustering"}, {"color": "red", "font": {"color": "black"}, "id": "Loss function", "label": "Loss function", "shape": "dot", "size": 149.188807350972, "title": "Loss function"}, {"color": "black", "font": {"color": "black"}, "id": "Tensor", "label": "Tensor", "shape": "dot", "size": 145.429329221056, "title": "Tensor"}, {"color": "black", "font": {"color": "black"}, "id": "Pulp magazine", "label": "Pulp magazine", "shape": "dot", "size": 136.82279090094102, "title": "Pulp magazine"}, {"color": "black", "font": {"color": "black"}, "id": "Batman (military)", "label": "Batman (military)", "shape": "dot", "size": 133.097814243293, "title": "Batman (military)"}, {"color": "#97c2fc", "font": {"color": "black"}, "id": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "shape": "dot", "size": 100, "title": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)"}, {"color": "red", "font": {"color": "black"}, "id": "Machine learning", "label": "Machine learning", "shape": "dot", "size": 107.307957854169, "title": "Machine learning"}, {"color": "black", "font": {"color": "black"}, "id": "E-commerce", "label": "E-commerce", "shape": "dot", "size": 104.13691851245099, "title": "E-commerce"}, {"color": "black", "font": {"color": "black"}, "id": "Netflix", "label": "Netflix", "shape": "dot", "size": 103.994647688711, "title": "Netflix"}, {"color": "black", "font": {"color": "black"}, "id": "Precision and recall", "label": "Precision and recall", "shape": "dot", "size": 139.184229092954, "title": "Precision and recall"}, {"color": "black", "font": {"color": "black"}, "id": "Least squares", "label": "Least squares", "shape": "dot", "size": 120.48685113135299, "title": "Least squares"}, {"color": "black", "font": {"color": "black"}, "id": "Neural network", "label": "Neural network", "shape": "dot", "size": 213.848805847742, "title": "Neural network"}, {"color": "black", "font": {"color": "black"}, "id": "Data set", "label": "Data set", "shape": "dot", "size": 184.433617999822, "title": "Data set"}, {"color": "black", "font": {"color": "black"}, "id": "Serendipity", "label": "Serendipity", "shape": "dot", "size": 178.236410837195, "title": "Serendipity"}, {"color": "#97c2fc", "font": {"color": "black"}, "id": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "shape": "dot", "size": 100, "title": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained"}, {"color": "red", "font": {"color": "black"}, "id": "University of Washington", "label": "University of Washington", "shape": "dot", "size": 134.819354211674, "title": "University of Washington"}, {"color": "red", "font": {"color": "black"}, "id": "Amazon (company)", "label": "Amazon (company)", "shape": "dot", "size": 130.22464136144498, "title": "Amazon (company)"}, {"color": "black", "font": {"color": "black"}, "id": "LinkedIn", "label": "LinkedIn", "shape": "dot", "size": 122.406250920135, "title": "LinkedIn"}, {"color": "black", "font": {"color": "black"}, "id": "YouTube", "label": "YouTube", "shape": "dot", "size": 110.805580424623, "title": "YouTube"}, {"color": "black", "font": {"color": "black"}, "id": "Dot product", "label": "Dot product", "shape": "dot", "size": 268.99362993330703, "title": "Dot product"}, {"color": "red", "font": {"color": "black"}, "id": "Matrix completion", "label": "Matrix completion", "shape": "dot", "size": 175.91117796844202, "title": "Matrix completion"}, {"color": "red", "font": {"color": "black"}, "id": "Cosine similarity", "label": "Cosine similarity", "shape": "dot", "size": 169.29220983607502, "title": "Cosine similarity"}, {"color": "black", "font": {"color": "black"}, "id": "Deep learning", "label": "Deep learning", "shape": "dot", "size": 145.37118170609, "title": "Deep learning"}, {"color": "black", "font": {"color": "black"}, "id": "Energy Brands", "label": "Energy Brands", "shape": "dot", "size": 250.642679038035, "title": "Energy Brands"}, {"color": "red", "font": {"color": "black"}, "id": "Water right", "label": "Water right", "shape": "dot", "size": 115.72569361663899, "title": "Water right"}, {"color": "black", "font": {"color": "black"}, "id": "Ziploc", "label": "Ziploc", "shape": "dot", "size": 111.839180269357, "title": "Ziploc"}, {"color": "black", "font": {"color": "black"}, "id": "Cross entropy", "label": "Cross entropy", "shape": "dot", "size": 182.448214802526, "title": "Cross entropy"}, {"color": "red", "font": {"color": "black"}, "id": "Entropy", "label": "Entropy", "shape": "dot", "size": 121.1712979424, "title": "Entropy"}, {"color": "red", "font": {"color": "black"}, "id": "Latency (engineering)", "label": "Latency (engineering)", "shape": "dot", "size": 120.263257767539, "title": "Latency (engineering)"}]);
+                  edges = new vis.DataSet([{"from": "Building a Recommendation System in Python", "label": "Has been learn from", "to": "Recommender system", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "Has been learn from", "to": "Collaborative filtering", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "Has been learn from", "to": "Algorithm", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "is a learnable concept in", "to": "Matrix (mathematics)", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "is a learnable concept in", "to": "K-means clustering", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "Has been learn from", "to": "Loss function", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "is a learnable concept in", "to": "Tensor", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "is a learnable concept in", "to": "Pulp magazine", "value": 1}, {"from": "Building a Recommendation System in Python", "label": "is a learnable concept in", "to": "Batman (military)", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "Has been learn from", "to": "Collaborative filtering", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "Has been learn from", "to": "Recommender system", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "Has been learn from", "to": "Machine learning", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "E-commerce", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Netflix", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Precision and recall", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Matrix (mathematics)", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Least squares", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Algorithm", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Neural network", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Data set", "value": 1}, {"from": "How to Design and Build a Recommendation System Pipeline in Python (Jill Cates)", "label": "is a learnable concept in", "to": "Serendipity", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Netflix", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Recommender system", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "University of Washington", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Amazon (company)", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "LinkedIn", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Collaborative filtering", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "YouTube", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "Dot product", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Matrix completion", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "Machine learning", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Cosine similarity", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "Deep learning", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "Energy Brands", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Water right", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "Ziploc", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "is a learnable concept in", "to": "Cross entropy", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Entropy", "value": 1}, {"from": "Design of Recommendation Systems | Recommender Systems using Deep Learning Explained", "label": "Has been learn from", "to": "Latency (engineering)", "value": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -80000,
+            "springConstant": 0.001,
+            "springLength": 250
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
