@@ -31,6 +31,7 @@ class YoutubeVideo:
         self.duration=duration
         self.watch=False
         self.segment=None
+        self.similarity = 0
         self.youtube_list.append(self)
 
 # List for Storing Watched Videos
@@ -193,6 +194,7 @@ class VideoRecommender:
                 similarity = self.alpha*similarity_alpha+(1-self.alpha)*similarity_beta
                 if similarity >= self.threshold:
                     recommended_videos.append((video, similarity))  # Storing Videos Along with Similarity Scores
+                    video.similarity = similarity
     
         # Sorting by Similarity Score in Descending Order
         recommended_videos.sort(key=lambda x: x[1], reverse=True)
@@ -471,7 +473,7 @@ with tab1:
                             pickle.dump(selected_video, file)
                 
                 st.video(item.url) # Show Video
-
+                st.success(f"Recommended score: {item.similarity}")
                 st.write(f"**{item.name}**")
                 st.write(item.desc)
 
