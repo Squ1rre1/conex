@@ -321,7 +321,7 @@ def make_csv():
 
 # Visualizing the graph through a CSV file
 def visualize_dynamic_network():
-    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF", font_color="black", notebook=True)
+    got_net = Network(width="1200px", height="800px", bgcolor="#EEEEEF",directed=True, font_color="black", notebook=True)
 
     # set the physics layout of the network
     got_net.barnes_hut()
@@ -350,7 +350,7 @@ def visualize_dynamic_network():
             
             got_net.add_node(vid, label=vid, title=vid, size=100)
             got_net.add_node(con, label=con, title=con, color=node_color, size=node_size)
-            got_net.add_edge(vid, con, value=1)
+            got_net.add_edge(vid, con, value=1, label=edge_label)
 
         got_net.show("./data/gameofthrones.html")
 
